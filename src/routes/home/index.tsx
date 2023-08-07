@@ -4,27 +4,16 @@ import style from './style.css';
 const Home = () => {
 	return (
 		<div class={style.home}>
-			<a href="https://preactjs.com">
-				<img src="../../assets/preact-logo.svg" alt="Preact Logo" height="160" width="160" />
-			</a>
-			<h1>Get Started Building PWAs with Preact-CLI</h1>
-			<section>
-				<Resource
-					title="Learn Preact"
-					description="If you're new to Preact, try the interactive tutorial to learn important concepts"
-					link="https://preactjs.com/tutorial/"
-				/>
-				<Resource
-					title="Differences to React"
-					description="If you're coming from React, check out our docs for where Preact differs"
-					link="https://preactjs.com/guide/v10/differences-to-react"
-				/>
-				<Resource
-					title="Learn Preact-CLI"
-					description="To learn more about Preact-CLI, read through the ReadMe & Wiki"
-					link="https://github.com/preactjs/preact-cli#preact-cli--"
-				/>
-			</section>
+			<img src="../../assets/icons/icon.svg" alt="Preact Logo" height="160" width="160" />
+			<h1>Yarr</h1>
+			<h2>A free, and <a href="https://github.com/repcomm/yarr">open-source</a> MMO for the nostalgic</h2>
+			
+			Yarr is inspired by Kung Fu Panda World, Club Penguin, Panfu, among others
+			<br /><br />
+			Yarr uses the pocketbase database as a back-end,
+			<br/>
+			and is a proof of concept
+			for powering real-time gaming from a database.
 		</div>
 	);
 };

@@ -1,5 +1,13 @@
 .home {
 	text-align: center;
+	background-image: url("../../assets/home.svg");
+	background-repeat: no-repeat;
+	background-size: cover, auto;
+	background-position: center;
+
+	font-family:monospace;
+
+	text-shadow: 1px 1px 5px #030713; 
 }
 
 .home img {
