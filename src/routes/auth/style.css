@@ -1,0 +1,93 @@
+
+.auth {
+  display: flex;
+  background-image: url("../../assets/blue.svg");
+	background-repeat: no-repeat;
+	background-size: cover, auto;
+	background-position: center;
+}
+
+.form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.field {
+  display: flex;
+  flex-direction: row;
+  margin-top:0.5em;
+  margin-bottom:0.5em;
+}
+
+.field>span {
+  text-align: right;
+}
+
+.field>input,
+.field>span {
+  font-size: large;
+  margin-left:0.5em;
+  margin-right:0.5em;
+  width: 50%;
+}
+
+.field>input {
+  border-radius: 1rem;
+  text-indent: 1em;
+  border-width: 1px;
+  border-color: #ffffff;
+  border-style: solid;
+}
+
+.field>input:disabled {
+  background-image: url("../../assets/stripes.svg");
+  background-size: auto 200%;
+  border-color: #444444;
+
+}
+
+.submit {
+  font-size: large;
+  border-radius: 1rem;
+  border-width: 1px;
+  border-color: #ffffff;
+  border-style: solid;
+  padding-left: 2em;
+  padding-right: 2em;
+  cursor: pointer;
+  background-color: #1d1d1d;
+}
+
+.submit:active,
+.submit:hover {
+  background-color: black;
+}
+
+.help, .issue {
+  border-width: 1px;
+  border-style: solid;
+  padding-right: 0.5em;
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+
+  margin-top:1px;
+  margin-bottom:1px;
+  border-radius: 0.25em;
+}
+.helpLabel, .issueLabel {
+  padding: 0.25em;
+  margin-right: 0.25em;
+  color: black;
+}
+
+.issue { border-color: #970000; }
+.issueLabel { background-color: #970000; }
+.helpLabel { background-color: #cfa900; }
+.help { border-color: #cfa900; }

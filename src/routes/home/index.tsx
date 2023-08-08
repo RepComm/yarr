@@ -18,19 +18,4 @@ const Home = () => {
 	);
 };
 
-interface ResourceProps {
-	title: string;
-	description: string;
-	link: string;
-}
-
-const Resource = (props: ResourceProps) => {
-	return (
-		<a href={props.link} class={style.resource}>
-			<h2>{props.title}</h2>
-			<p>{props.description}</p>
-		</a>
-	);
-};
-
 export default Home;

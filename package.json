@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "preact build",
-    "serve": "sirv build --cors --single",
+    "db": "pocketbase serve --http=\"0.0.0.0:8090\" --publicDir=\"./build\"",
     "dev": "preact watch",
     "lint": "eslint src",
     "test": "jest"

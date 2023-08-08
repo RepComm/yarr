@@ -20,10 +20,6 @@ export default class Room extends Component<Props, State> {
 
   constructor () {
     super();
-
-    // this.state = {
-    //   needsInit: true
-    // };
   }
   componentDidMount(): void {
     const r = this._ref.getBoundingClientRect();
@@ -51,7 +47,7 @@ export default class Room extends Component<Props, State> {
       const cube = new Mesh( geometry, material );
       this.scene.add( cube );
       
-      this._ref.appendChild(this.renderer.domElement);
+      // this._ref.appendChild(this.renderer.domElement);
 
       const render = () => {
         requestAnimationFrame(render);
@@ -63,6 +59,7 @@ export default class Room extends Component<Props, State> {
       requestAnimationFrame(render);
     }
 
+    this._ref.appendChild(this.renderer.domElement);
     this.renderer.setSize(r.width, r.height);
   }
   

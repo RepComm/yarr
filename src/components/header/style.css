@@ -21,7 +21,7 @@
 
 .menu_item {
 	flex: 1;
-
+	color: unset;
 	text-decoration: none;
 	
 	padding-left: 1em;
@@ -30,6 +30,8 @@
 	font-weight: bold;
 	font-size: larger;
 	
+	text-align: center;
+
 	/**center text vertically*/
 	display:flex;
 	align-items: center;

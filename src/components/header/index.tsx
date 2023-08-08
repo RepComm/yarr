@@ -1,23 +1,32 @@
 import { h } from 'preact';
-import { Link } from 'preact-router/match';
 import style from './style.css';
+import { db } from '../../db';
 
 const Header = () => (
 	<header class={style.header}>
-		<img className={style.logo} src="../../assets/logo.svg" alt="Icon" />
-		<div className={style.menu_items}>
-			<div
-				className={style.menu_item}
-				>
+		<a href="/">
+			<img className={style.logo} src="../../assets/logo.svg" alt="Icon" />
+		</a>
+
+		{(db.isLoggedIn() &&
+
+			<div className={style.menu_items}>
+				<a className={style.menu_item} href="/auth">
 					Logout
-			</div>
-			<div
-				className={style.menu_item}
-				><a href="/play">
+				</a>
+				<a className={style.menu_item} href="/play">
 					Play
 				</a>
 			</div>
-		</div>
+
+		) ||
+
+			<div className={style.menu_items}>
+				<a className={style.menu_item} href="/auth">
+					Login / Register
+				</a>
+			</div>
+		}
 	</header>
 );
 
