@@ -1,6 +1,6 @@
 # yarr
 
-
+![img](./example.png)
 
 ## running
 - `npm install`: Installs dependencies
