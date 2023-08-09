@@ -17,7 +17,7 @@ const App = () => (
 		<main>
 			<Router>
 				<Route path="/" component={Home} />
-				<Route path="/play" component={Room} />
+				<Route path="/play/:roomId?" component={Room} />
 				<Route path="/auth" component={Auth} />
 			</Router>
 		</main>

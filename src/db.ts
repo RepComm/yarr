@@ -1,5 +1,5 @@
 
-import Pocketbase, { RecordQueryParams } from "pocketbase/dist/pocketbase.es.mjs";
+import Pocketbase, { RecordFullListQueryParams, RecordQueryParams } from "pocketbase/dist/pocketbase.es.mjs";
 
 export type DbRowId = string;
 export interface DbRow<T = unknown> {
@@ -47,12 +47,12 @@ export interface Character {
 }
 
 export interface RoomExpands {
-  instanced_models: Array<InstancedModel>;
+  model_placements: Array<InstancedModel>;
   occupants: Array<Character>;
 }
 
 export interface Room extends Partial<DbRow> {
-  instanced_models: DbRowId[];
+  model_placements: DbRowId[];
   occupants: DbRowId[];
   label: string;
   description: string;
@@ -90,5 +90,8 @@ export const db = {
 
   fetchRoom (roomId: string, queryParams?: RecordQueryParams) {
     return db.ctx.collection("rooms").getOne<Room>(roomId, queryParams);
+  },
+  listRooms (queryParams?: RecordFullListQueryParams) {
+    return db.ctx.collection("rooms").getFullList(queryParams);
   }
 };

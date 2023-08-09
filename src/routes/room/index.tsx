@@ -15,11 +15,11 @@ const loader = new GLTFLoader();
 
 async function loadRoom(roomId: string, scene: Scene) {
   const room = await db.fetchRoom(roomId, {
-    expand: "instanced_models,instanced_models.asset"
+    expand: "model_placements,model_placements.asset"
   });
 
 
-  for (let instm of room.expand.instanced_models) {
+  for (let instm of room.expand.model_placements) {
     if (!instm.placements || !Array.isArray(instm.placements) || instm.placements.length < 1) {
       console.error("Room", room.id, "instanced_models", instm.id, "placements invalid, expected [{\"x\":0,\"y\":0,\"z\":0}] like, but got", instm.placements);
       continue;
@@ -55,6 +55,60 @@ async function loadRoom(roomId: string, scene: Scene) {
       scene.add(cloned);
     }
   }
+
+}
+
+function fixScene (scene: Scene, camera: Camera) {
+  let materialNames = new Map<string, Material>();
+    
+  scene.traverse((child) => {
+    if (child.name === "cameraMountPoint") {
+      // child.add(this.camera);
+      child.getWorldPosition(camera.position);
+      child.getWorldQuaternion(camera.quaternion);
+    }
+    if (child.userData) {
+      if (child.userData.invis === "true") {
+        child.visible = false;
+      }
+      let mesh = child as Mesh;
+      if (mesh.isMesh) {
+        let mat = mesh.material as MeshStandardMaterial;
+
+        if (mat.userData) {
+
+          if (mat.userData.toon !== "false") {
+            let nextMaterial = materialNames.get(mat.name);
+            if (!nextMaterial) {
+              nextMaterial = new MeshToonMaterial({
+                color: mat.color,
+                name: mat.name,
+                visible: mat.visible,
+                map: mat.map
+              });
+              materialNames.set(nextMaterial.name, nextMaterial);
+            }
+            mesh.material = nextMaterial;
+          }
+        }
+      }
+
+      let lgt: DirectionalLight = child as any;
+      
+      if (lgt.isLight) {
+        // if (lgt.isDirectionalLight) {
+          lgt.intensity /= 2000;
+        // }
+      }
+    }
+  });
+}
+
+async function getRandomRoomId () {
+  let rooms = await db.listRooms();
+  const index = Math.floor( Math.random() * rooms.length );
+  console.log(index, rooms.length);
+  return rooms[index].id;
 }
 
 export default class Room extends Component<Props, State> {
@@ -93,70 +147,37 @@ export default class Room extends Component<Props, State> {
       (this.camera as PerspectiveCamera).aspect = aspect;
       (this.camera as PerspectiveCamera).updateProjectionMatrix();
 
-      // this.camera.position.z = 5;
-
       this.renderer = new WebGLRenderer({
         alpha: false,
         antialias: false
       });
 
-      loadRoom("hm38smaprly1g9g", this.scene).then(() => {
-        let materialNames = new Map<string, Material>();
 
-        this.scene.traverse((child) => {
-          if (child.name === "cameraMountPoint") {
-            // child.add(this.camera);
-            child.getWorldPosition(this.camera.position);
-            child.getWorldQuaternion(this.camera.quaternion);
-          }
-          if (child.userData) {
-            if (child.userData.invis === "true") {
-              child.visible = false;
-            }
-            let mesh = child as Mesh;
-            if (mesh.isMesh) {
-              let mat = mesh.material as MeshStandardMaterial;
-
-              if (mat.userData) {
-
-                if (mat.userData.toon !== "false") {
-                  let nextMaterial = materialNames.get(mat.name);
-                  if (!nextMaterial) {
-                    nextMaterial = new MeshToonMaterial({
-                      color: mat.color,
-                      name: mat.name,
-                      visible: mat.visible,
-                      map: mat.map
-                    });
-                    materialNames.set(nextMaterial.name, nextMaterial);
-                  }
-                  mesh.material = nextMaterial;
-                }
-              }
-            }
-
-            let lgt: DirectionalLight = child as any;
-            
-            if (lgt.isLight) {
-              // if (lgt.isDirectionalLight) {
-                lgt.intensity /= 2000;
-              // }
-            }
-          }
+      if (!this.props.roomId) {
+        console.log("No roomId prop, randomly getting roomId from database");
+        getRandomRoomId().then((roomId)=>{
+          this.props.roomId = roomId;
+          loadRoom(this.props.roomId, this.scene).then(()=>{
+            fixScene(this.scene, this.camera);
+          });
         });
-      });
+      } else {
+        console.log("Found roomId prop, loading from database");
+        loadRoom(this.props.roomId, this.scene).then(()=>{
+          fixScene(this.scene, this.camera);
+        });
+      }
 
       const geometry = new BoxGeometry(1, 1, 1);
-      const material = new MeshBasicMaterial({ color: 0x00ff00 });
+      const material = new MeshToonMaterial({color: "#556677"});
       const cube = new Mesh(geometry, material);
+      cube.position.y = 1;
       this.scene.add(cube);
-
-      // this._ref.appendChild(this.renderer.domElement);
 
       const render = () => {
         requestAnimationFrame(render);
 
-        cube.rotateZ(0.1);
+        cube.rotateY(0.1);
 
         this.renderer.render(this.scene, this.camera);
       };
