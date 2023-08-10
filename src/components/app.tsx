@@ -8,6 +8,7 @@ import Home from '../routes/home';
 import Room from '../routes/room';
 import Auth from '../routes/auth';
 import { db } from '../db';
+import { Character } from 'src/routes/room/character';
 
 db.init();
 

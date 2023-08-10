@@ -2,6 +2,17 @@
 
 ![img](./example.png)
 
+## Implemented so far
+- `/play/roomId` - loads room from database and handles in-game logic
+- Character spawning from room.occupants on room load
+- GLTF userData props:
+  - `material.userData.emission` - float that maps to emissiveIntensity of material, when included, emission property of material defaults to white instead of black
+  - `mesh.userData.invis` - "true" or "false" strings, when true sets mesh.visible = false
+  - `material.userData.toon` - when set to "false" skips toon material conversion
+- `room.model_placements` handles multiple placements of the asset model used without duping geometry data
+- character name rendering and auto-centering
+
+
 ## running
 - `npm install`: Installs dependencies
 
@@ -35,11 +46,11 @@ The schema can be loaded from pb_schema.json
   - label
   - description
 - rooms
-  - instanced_models
+  - model_placements
   - occupants - list of characters
   - label
   - description
-- instanced_models
+- model_placements
   - asset - what model to show
   - placements - JSON array of {x,y,z}
   

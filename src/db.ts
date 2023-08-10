@@ -36,7 +36,7 @@ export interface InstancedModel extends DbRow {
   placements: Array<InstancedModelPlacement>;
   expand?: Partial<InstancedModelExpands>;
 }
-export interface Character {
+export interface CharacterJson extends DbRow {
   x: number;
   y: number;
   z: number;
@@ -48,7 +48,7 @@ export interface Character {
 
 export interface RoomExpands {
   model_placements: Array<InstancedModel>;
-  occupants: Array<Character>;
+  occupants: Array<CharacterJson>;
 }
 
 export interface Room extends Partial<DbRow> {
@@ -88,6 +88,12 @@ export const db = {
     return db.ctx && db.ctx.authStore.isValid;
   },
 
+  fetchAsset (assetId: string, queryParams?: RecordQueryParams) {
+    return db.ctx.collection("assets").getOne<Asset>(assetId, queryParams);
+  },
+  fetchAssetByLabel(label: string) {
+    return db.ctx.collection("assets").getFirstListItem<Asset>(`label="${label}"`);
+  },
   fetchRoom (roomId: string, queryParams?: RecordQueryParams) {
     return db.ctx.collection("rooms").getOne<Room>(roomId, queryParams);
   },

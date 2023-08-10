@@ -3,7 +3,8 @@ import { BoxGeometry, Camera, Color, DirectionalLight, InstancedMesh, Light, Mat
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Component, h } from "preact";
 import style from "./style.css";
-import { db } from "../../db";
+import { CharacterJson, db } from "../../db";
+import { Character } from "./character";
 
 interface Props {
   roomId: string;
@@ -15,7 +16,7 @@ const loader = new GLTFLoader();
 
 async function loadRoom(roomId: string, scene: Scene) {
   const room = await db.fetchRoom(roomId, {
-    expand: "model_placements,model_placements.asset"
+    expand: "model_placements,model_placements.asset,occupants"
   });
 
   for (let instm of room.expand.model_placements) {
@@ -39,22 +40,21 @@ async function loadRoom(roomId: string, scene: Scene) {
         placement.y,
         placement.z
       );
-      return;
-    }
-
-    for (let i = 0; i < instm.placements.length; i++) {
-      const placement = instm.placements[i];
-
-      const cloned = gltf.scene.clone(true);
-      cloned.position.set(
-        placement.x,
-        placement.y,
-        placement.z
-      );
-      scene.add(cloned);
+    } else {
+      for (let i = 0; i < instm.placements.length; i++) {
+        const placement = instm.placements[i];
+  
+        const cloned = gltf.scene.clone(true);
+        cloned.position.set(
+          placement.x,
+          placement.y,
+          placement.z
+        );
+        scene.add(cloned);
+      }
     }
   }
-
+  return room;
 }
 
 function fixScene (scene: Scene, camera: Camera) {
@@ -90,9 +90,6 @@ function fixScene (scene: Scene, camera: Camera) {
                 emissive: mat.userData.emissive ? white : black,
                 emissiveIntensity: mat.userData.emissive || 1
               });
-              if (mat.userData.emissive) {
-                console.log(nextMaterial);
-              }
               materialNames.set(nextMaterial.name, nextMaterial);
             }
             mesh.material = nextMaterial;
@@ -116,6 +113,21 @@ async function getRandomRoomId () {
   const index = Math.floor( Math.random() * rooms.length );
   console.log(index, rooms.length);
   return rooms[index].id;
+}
+
+function spawnCharacters (occupants: CharacterJson[], scene: Scene) {
+  if (!occupants || occupants.length < 1) return;
+
+  Character.ensureAssetLoaded().then(()=>{
+    for (const occupant of occupants) {
+      console.log("Spawning", occupant.name);
+      const ch = Character.spawn(occupant, scene);
+
+      ch.scene.position.set(
+        occupant.x, occupant.y, occupant.z
+      );
+    }
+  });
 }
 
 export default class Room extends Component<Props, State> {
@@ -156,35 +168,36 @@ export default class Room extends Component<Props, State> {
 
       this.renderer = new WebGLRenderer({
         alpha: false,
-        antialias: false
+        antialias: true
       });
-
 
       if (!this.props.roomId) {
         console.log("No roomId prop, randomly getting roomId from database");
         getRandomRoomId().then((roomId)=>{
           this.props.roomId = roomId;
-          loadRoom(this.props.roomId, this.scene).then(()=>{
+          loadRoom(this.props.roomId, this.scene).then((room)=>{
             fixScene(this.scene, this.camera);
+            spawnCharacters(room.expand.occupants, this.scene);
           });
         });
       } else {
         console.log("Found roomId prop, loading from database");
-        loadRoom(this.props.roomId, this.scene).then(()=>{
+        loadRoom(this.props.roomId, this.scene).then((room)=>{
           fixScene(this.scene, this.camera);
+          spawnCharacters(room.expand.occupants, this.scene);
         });
       }
 
-      const geometry = new BoxGeometry(1, 1, 1);
-      const material = new MeshToonMaterial({color: "#556677"});
-      const cube = new Mesh(geometry, material);
-      cube.position.y = 1;
-      this.scene.add(cube);
+      // const geometry = new BoxGeometry(1, 1, 1);
+      // const material = new MeshToonMaterial({color: "#556677"});
+      // const cube = new Mesh(geometry, material);
+      // cube.position.y = 1;
+      // this.scene.add(cube);
 
       const render = () => {
         requestAnimationFrame(render);
 
-        cube.rotateY(0.1);
+        // cube.rotateY(0.1);
 
         this.renderer.render(this.scene, this.camera);
       };
