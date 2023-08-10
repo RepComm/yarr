@@ -5,6 +5,7 @@ import { Component, h } from "preact";
 import style from "./style.css";
 import { CharacterJson, db } from "../../db";
 import { Character } from "./character";
+import Profile from "../../components/profile";
 
 interface Props {
   roomId: string;
@@ -213,6 +214,7 @@ export default class Room extends Component<Props, State> {
     return <div className={style.room} ref={(_ref) => {
       this._ref = _ref;
     }}>
+      <Profile />
     </div>
   }
 }

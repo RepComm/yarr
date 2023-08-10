@@ -1,5 +1,5 @@
 
-import { Group, Mesh, Scene, Vector3 } from "three";
+import { Group, Mesh, Object3D, Scene, Vector3 } from "three";
 import { CharacterJson, db } from "../../db";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
@@ -8,6 +8,18 @@ import { helvetiker } from "../../assets/fonts/helvetiker_regular.typeface";
 
 const loader = new GLTFLoader();
 const fontLoader = new FontLoader();
+
+function findObjectByName (parent: Object3D, name: string) {
+  let result: Object3D;
+
+  parent.traverse((child)=>{
+    if (result) return;
+    if (child.name === name) {
+      result = child;
+    }
+  });
+  return result;
+}
 
 export class Character {
   static gltf: GLTF;
@@ -54,6 +66,8 @@ export class Character {
       0
     );
     result.scene.add(result.nameMesh);
+
+    // findObjectByName(result.scene, "body").rotateY(90);
 
     scene.add(result.scene);
     Character.all.set(json.id, result);
