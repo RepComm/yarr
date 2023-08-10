@@ -1,5 +1,5 @@
 
-import { BoxGeometry, Camera, DirectionalLight, InstancedMesh, Light, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, Object3D, OrthographicCamera, PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { BoxGeometry, Camera, Color, DirectionalLight, InstancedMesh, Light, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, Object3D, OrthographicCamera, PerspectiveCamera, Scene, WebGLRenderer } from "three";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Component, h } from "preact";
 import style from "./style.css";
@@ -17,7 +17,6 @@ async function loadRoom(roomId: string, scene: Scene) {
   const room = await db.fetchRoom(roomId, {
     expand: "model_placements,model_placements.asset"
   });
-
 
   for (let instm of room.expand.model_placements) {
     if (!instm.placements || !Array.isArray(instm.placements) || instm.placements.length < 1) {
@@ -60,7 +59,9 @@ async function loadRoom(roomId: string, scene: Scene) {
 
 function fixScene (scene: Scene, camera: Camera) {
   let materialNames = new Map<string, Material>();
-    
+  const white = new Color("white");
+  const black = new Color("black");
+
   scene.traverse((child) => {
     if (child.name === "cameraMountPoint") {
       // child.add(this.camera);
@@ -84,8 +85,14 @@ function fixScene (scene: Scene, camera: Camera) {
                 color: mat.color,
                 name: mat.name,
                 visible: mat.visible,
-                map: mat.map
+                map: mat.map,
+                transparent: mat.userData.transparent==="true" ? true : false,
+                emissive: mat.userData.emissive ? white : black,
+                emissiveIntensity: mat.userData.emissive || 1
               });
+              if (mat.userData.emissive) {
+                console.log(nextMaterial);
+              }
               materialNames.set(nextMaterial.name, nextMaterial);
             }
             mesh.material = nextMaterial;
