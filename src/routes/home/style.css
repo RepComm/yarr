@@ -58,3 +58,9 @@
 		box-shadow: 0 25px 50px -12px #673ab888;
 	}
 }
+
+.loading_container {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+}

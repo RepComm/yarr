@@ -99,5 +99,10 @@ export const db = {
   },
   listRooms (queryParams?: RecordFullListQueryParams) {
     return db.ctx.collection("rooms").getFullList(queryParams);
+  },
+  listCharacters (filter: string, max: number = 10) {
+    return db.ctx.collection("characters").getList<CharacterJson>(0, max, {
+      filter
+    });
   }
 };

@@ -1,0 +1,19 @@
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading {
+  background-image: url("../../assets/loading.svg");
+  background-size: contain;
+  width: 5em;
+  height: 5em;
+  background-repeat: no-repeat;
+  animation: rotate 1s infinite;
+  animation-timing-function: ease-in-out;
+}
