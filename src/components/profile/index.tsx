@@ -20,6 +20,10 @@ interface State {
   render?: string;
 }
 
+function randomHexColor () {
+  return `#${Math.floor(Math.random() * 0x1000000).toString(16).padStart(6, "0")}`;
+}
+
 export default class Profile extends Component<Props, State> {
   needsCharacterRender: boolean;
   camera: Camera;
@@ -75,7 +79,7 @@ export default class Profile extends Component<Props, State> {
 
     //make sure we have some light
     if (!this.ambient) {
-      this.ambient = new AmbientLight("#ffffff", 1);
+      this.ambient = new AmbientLight("#ffffff", 2);
       this.scene.add(this.ambient);
     }
     
@@ -89,8 +93,11 @@ export default class Profile extends Component<Props, State> {
     
     gltf.scene.remove();
 
+    const colorA = randomHexColor();
+    const colorB = randomHexColor();
+
     this.setState({
-      render: result
+      render: `url(${result}), linear-gradient(${colorA}, ${colorB})`
     });
 
   }
@@ -100,6 +107,9 @@ export default class Profile extends Component<Props, State> {
     }
   }
   render() {
+    let cn = style.profile;
+    if (this.props.isDialog) cn += " dialog";
+    if (this.props.isSelected) cn += " selected";
     return <div
       onClick={() => {
         if (this.props.onSelect) {
@@ -113,7 +123,7 @@ export default class Profile extends Component<Props, State> {
           <div className={style.exit}>x</div>
         }
       </div>
-      <div className={style.container} style={{backgroundImage: this.state.render ? `url(${this.state.render})` : ""}} />
+      <div className={style.container} style={{backgroundImage: this.state.render ? this.state.render : ""}} />
     </div>
   }
 }
