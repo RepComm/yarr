@@ -11,3 +11,7 @@ export function findObjectByName (parent: Object3D, name: string) {
   });
   return result;
 }
+
+export function has<T>(a: Array<T>, min: number = 1) {
+  return a.length >= min;
+}

@@ -9,36 +9,47 @@ import { helvetiker } from "../../assets/fonts/helvetiker_regular.typeface";
 const loader = new GLTFLoader();
 const fontLoader = new FontLoader();
 
-export class Character {
-  static gltf: GLTF;
-  static font: Font;
-  
-  static async ensureAssetLoaded () {
-    if (Character.gltf) return;
+export const CharAssetProvider = db.fetchAssetByLabel("character");
 
-    const asset = await db.fetchAssetByLabel("character");
-    const url = db.ctx.files.getUrl(
-      asset as any,
-      asset.file
-    );
+export const CharModelUrlProvider = new Promise<string>(async (resolve, reject)=>{
+  const asset = await CharAssetProvider;
+  resolve(db.ctx.files.getUrl(
+    asset as any,
+    asset.file
+  ));
+});
 
-    Character.gltf = await loader.loadAsync(url);
-    
-    Character.font = fontLoader.parse(helvetiker);
+export const CharModelProvider = new Promise<GLTF>(async (resolve, reject) => {
+  const url = await CharModelUrlProvider;
+  loader.loadAsync(url).then(resolve).catch(reject);
+});
+
+export const FontProvider = new Promise<Font>((resolve, reject)=>{
+  try {
+    resolve(fontLoader.parse(helvetiker));
+  } catch(ex) {
+    reject(ex);
   }
+});
+
+export class Character {
 
   static all: Map<string, Character>;
 
-  static spawn (json: CharacterJson, scene: Scene) {
+  static async spawn(json: CharacterJson, scene: Scene) {
     const result = new Character();
-    result.scene = Character.gltf.scene.clone(true);
 
+    const gltf = await CharModelProvider;
+    result.scene = gltf.scene.clone(true);
+    
+    const font = await FontProvider;
+    
     result.nameGeometry = new TextGeometry(json.name, {
-      font: Character.font,
+      font,
       size: 0.15,
       height: 0.01
     });
-    
+
     let width = 0;
     {
       const temp = new Vector3();
@@ -46,10 +57,10 @@ export class Character {
       result.nameGeometry.boundingBox.getSize(temp);
       width = Math.max(temp.x, temp.y, temp.z);
     }
-    
+
     result.nameMesh = new Mesh(result.nameGeometry);
     result.nameMesh.position.set(
-      -width/2,
+      -width / 2,
       1.2,
       0
     );
@@ -66,7 +77,7 @@ export class Character {
   nameGeometry: TextGeometry;
   nameMesh: Mesh;
 
-  private constructor () {
+  private constructor() {
   }
 }
 Character.all = new Map();

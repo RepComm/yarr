@@ -12,13 +12,14 @@ export const osr = {
 
   init () {
     osr.renderer = new WebGLRenderer({
-      alpha: false,
+      alpha: true,
       antialias: true,
       preserveDrawingBuffer: true
     });
   },
 
   render (info: RenderInfo) {
+    osr.renderer.setClearColor("#ffffff", 0);
     osr.renderer.setSize(info.width, info.height);
     osr.renderer.render(info.scene, info.camera);
     return osr.renderer.domElement.toDataURL();

@@ -119,16 +119,15 @@ async function getRandomRoomId () {
 function spawnCharacters (occupants: CharacterJson[], scene: Scene) {
   if (!occupants || occupants.length < 1) return;
 
-  Character.ensureAssetLoaded().then(()=>{
-    for (const occupant of occupants) {
-      console.log("Spawning", occupant.name);
-      const ch = Character.spawn(occupant, scene);
-
+  for (const occupant of occupants) {
+    console.log("Spawning", occupant.name);
+    Character.spawn(occupant, scene).then((ch)=>{
       ch.scene.position.set(
         occupant.x, occupant.y, occupant.z
       );
-    }
-  });
+    })
+
+  }
 }
 
 export default class Room extends Component<Props, State> {
