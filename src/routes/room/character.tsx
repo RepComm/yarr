@@ -9,18 +9,6 @@ import { helvetiker } from "../../assets/fonts/helvetiker_regular.typeface";
 const loader = new GLTFLoader();
 const fontLoader = new FontLoader();
 
-function findObjectByName (parent: Object3D, name: string) {
-  let result: Object3D;
-
-  parent.traverse((child)=>{
-    if (result) return;
-    if (child.name === name) {
-      result = child;
-    }
-  });
-  return result;
-}
-
 export class Character {
   static gltf: GLTF;
   static font: Font;

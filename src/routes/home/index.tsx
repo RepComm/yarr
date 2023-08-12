@@ -1,6 +1,6 @@
 import { Component, h } from 'preact';
 import style from './style.css';
-import { CharacterJson, db } from '../../db';
+import { CharacterJson, DbRowId, db } from '../../db';
 import Loading from '../../components/loading';
 import Profile from '../../components/profile';
 
@@ -9,21 +9,28 @@ interface Props {
 }
 interface State {
 	characters: CharacterJson[];
+	selectedCharacterId: DbRowId;
 }
 
 export default class Home extends Component<Props, State> {
+	needsCharacterList: boolean;
+
 	constructor() {
 		super();
+		this.needsCharacterList = true;
+	}
+	fetchCharacters() {
+		this.needsCharacterList = false;
+
+		db.listCharacters(`owner.id="${db.ctx.authStore.model.id}"`).then((res) => {
+			this.setState({
+				characters: res.items
+			})
+		});
 	}
 	componentWillMount(): void {
-		if (db.isLoggedIn()) {
-			setTimeout(() => {
-				db.listCharacters(`owner.id="${db.ctx.authStore.model.id}"`).then((res) => {
-					this.setState({
-						characters: res.items
-					})
-				});
-			}, 1000);
+		if (db.isLoggedIn() && this.needsCharacterList) {
+			this.fetchCharacters();
 		}
 	}
 	render() {
@@ -34,7 +41,17 @@ export default class Home extends Component<Props, State> {
 
 			for (let ch of this.state.characters) {
 
-				let chd = <Profile character={ch}></Profile>
+				let chd = <Profile
+					character={ch}
+					isSelected={ch.id === this.state.selectedCharacterId}
+					onSelect={(ch) => {
+						db.selectCharacter(ch);
+						this.setState({
+							selectedCharacterId: ch.id
+						})
+						console.log("Selected character", ch.name);
+					}}
+				></Profile>
 
 				charactersDisplay.push(chd);
 			}
@@ -47,12 +64,15 @@ export default class Home extends Component<Props, State> {
 
 				{(db.isLoggedIn() &&
 					<div>
+						<h2>Select your character</h2>
 						{(this.state.characters === undefined &&
 							<div className={style.loading_container}>
 								<Loading />
 							</div>
 						) || (
-								charactersDisplay
+								<div className={style.charactersList}>
+									{charactersDisplay}
+								</div>
 							)}
 					</div>
 				) ||

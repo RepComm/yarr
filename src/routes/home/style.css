@@ -64,3 +64,10 @@
 	justify-content: center;
 	width: 100%;
 }
+.charactersList {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	margin-left: 5%;
+	margin-right: 5%;
+}

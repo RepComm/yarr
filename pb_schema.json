@@ -183,114 +183,6 @@
         "options": {}
     },
     {
-        "id": "g32k3w7qy4wbben",
-        "name": "characters",
-        "type": "base",
-        "system": false,
-        "schema": [
-            {
-                "id": "qmho35ej",
-                "name": "x",
-                "type": "number",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null
-                }
-            },
-            {
-                "id": "cb9tkydi",
-                "name": "y",
-                "type": "number",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null
-                }
-            },
-            {
-                "id": "9z7kx0fg",
-                "name": "z",
-                "type": "number",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null
-                }
-            },
-            {
-                "id": "vlspggp8",
-                "name": "name",
-                "type": "text",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
-            },
-            {
-                "id": "uchcupfk",
-                "name": "owner",
-                "type": "relation",
-                "system": false,
-                "required": true,
-                "options": {
-                    "collectionId": "_pb_users_auth_",
-                    "cascadeDelete": false,
-                    "minSelect": null,
-                    "maxSelect": 1,
-                    "displayFields": [
-                        "name"
-                    ]
-                }
-            },
-            {
-                "id": "ihtl8ijv",
-                "name": "inventory",
-                "type": "relation",
-                "system": false,
-                "required": false,
-                "options": {
-                    "collectionId": "v310p909h6q9sa5",
-                    "cascadeDelete": false,
-                    "minSelect": null,
-                    "maxSelect": 1024,
-                    "displayFields": [
-                        "definition"
-                    ]
-                }
-            },
-            {
-                "id": "gzdlkolj",
-                "name": "equipped",
-                "type": "relation",
-                "system": false,
-                "required": false,
-                "options": {
-                    "collectionId": "v310p909h6q9sa5",
-                    "cascadeDelete": false,
-                    "minSelect": null,
-                    "maxSelect": 64,
-                    "displayFields": [
-                        "definition"
-                    ]
-                }
-            }
-        ],
-        "indexes": [],
-        "listRule": null,
-        "viewRule": null,
-        "createRule": null,
-        "updateRule": null,
-        "deleteRule": null,
-        "options": {}
-    },
-    {
         "id": "hfe2jdhanb7par4",
         "name": "assets",
         "type": "base",
@@ -442,6 +334,126 @@
         "createRule": null,
         "updateRule": null,
         "deleteRule": null,
+        "options": {}
+    },
+    {
+        "id": "g32k3w7qy4wbben",
+        "name": "characters",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "id": "qmho35ej",
+                "name": "x",
+                "type": "number",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null
+                }
+            },
+            {
+                "id": "cb9tkydi",
+                "name": "y",
+                "type": "number",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null
+                }
+            },
+            {
+                "id": "9z7kx0fg",
+                "name": "z",
+                "type": "number",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null
+                }
+            },
+            {
+                "id": "vlspggp8",
+                "name": "name",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "id": "uchcupfk",
+                "name": "owner",
+                "type": "relation",
+                "system": false,
+                "required": true,
+                "options": {
+                    "collectionId": "_pb_users_auth_",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": [
+                        "name"
+                    ]
+                }
+            },
+            {
+                "id": "ihtl8ijv",
+                "name": "inventory",
+                "type": "relation",
+                "system": false,
+                "required": false,
+                "options": {
+                    "collectionId": "v310p909h6q9sa5",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1024,
+                    "displayFields": [
+                        "definition"
+                    ]
+                }
+            },
+            {
+                "id": "gzdlkolj",
+                "name": "equipped",
+                "type": "relation",
+                "system": false,
+                "required": false,
+                "options": {
+                    "collectionId": "v310p909h6q9sa5",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 64,
+                    "displayFields": [
+                        "definition"
+                    ]
+                }
+            },
+            {
+                "id": "rrgintp6",
+                "name": "color",
+                "type": "text",
+                "system": false,
+                "required": true,
+                "options": {
+                    "min": 7,
+                    "max": 7,
+                    "pattern": "^#[a-f0-9]{6}$"
+                }
+            }
+        ],
+        "indexes": [],
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": "@request.auth.id != \"\" && @request.data.owner.id = @request.auth.id",
+        "updateRule": "@request.auth.id != \"\" && @request.data.owner.id = @request.auth.id",
+        "deleteRule": "@request.auth.id != \"\" && @request.data.owner.id = @request.auth.id",
         "options": {}
     }
 ]

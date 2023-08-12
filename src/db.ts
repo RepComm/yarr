@@ -60,6 +60,7 @@ export interface Room extends Partial<DbRow> {
 }
 
 export const db = {
+  selectedCharacter: null as CharacterJson,
   ctx: null as Pocketbase,
   init () {
     const dbPort = 8090;
@@ -104,5 +105,8 @@ export const db = {
     return db.ctx.collection("characters").getList<CharacterJson>(0, max, {
       filter
     });
+  },
+  selectCharacter (ch: CharacterJson) {
+    db.selectedCharacter = ch;
   }
 };

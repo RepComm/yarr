@@ -210,11 +210,9 @@ export default class Room extends Component<Props, State> {
   }
 
   render() {
-
     return <div className={style.room} ref={(_ref) => {
       this._ref = _ref;
     }}>
-      {/* <Profile /> */}
     </div>
   }
 }
