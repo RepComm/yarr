@@ -89,7 +89,6 @@ export class Character {
         this.equipped.set(itemId, item);
         if (item.definition.wearable) {
           const bonename = item.definition.wearable_bone_name;
-          console.log("Character.scene", this.scene);
           const bone = findObjectByName(this.scene, bonename);
           if (bone) {
             bone.add(item.scene);

@@ -56,7 +56,6 @@ export default class Profile extends Component<Props, State> {
             const bone = findObjectByName(this.scene, bonename);
             if (bone) {
               bone.add(item.scene);
-              console.log("Item", item.scene, this.props.character.name);
             } else {
               console.warn("No bone found for wearable_bone_name", bonename);
             }
