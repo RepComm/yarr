@@ -4,8 +4,9 @@ import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Component, h } from "preact";
 import style from "./style.css";
 import { CharacterJson, db } from "../../db";
-import { Character } from "./character";
+import { Character } from "../../character";
 import Profile from "../../components/profile";
+import { findObjectByName } from "../../utils";
 
 interface Props {
   roomId: string;
@@ -116,6 +117,17 @@ async function getRandomRoomId () {
   return rooms[index].id;
 }
 
+let LocalCharacterResolved = false;
+let TryResolveLocalCharacter: (c: Character)=>void;
+export const LocalCharacter = new Promise((resolve,reject)=>{
+  TryResolveLocalCharacter = (v)=>{
+    if (!LocalCharacterResolved) {
+      LocalCharacterResolved = true;
+      resolve(v);
+    }
+  }
+});
+
 function spawnCharacters (occupants: CharacterJson[], scene: Scene) {
   if (!occupants || occupants.length < 1) return;
 
@@ -125,6 +137,12 @@ function spawnCharacters (occupants: CharacterJson[], scene: Scene) {
       ch.scene.position.set(
         occupant.x, occupant.y, occupant.z
       );
+      const local = findObjectByName(ch.scene, "local");
+      if (!db.selectedCharacter || occupant.id !== db.selectedCharacter.id) {
+        local.visible = false;
+      } else {
+        TryResolveLocalCharacter(ch);
+      }
     })
 
   }
@@ -170,6 +188,7 @@ export default class Room extends Component<Props, State> {
         alpha: false,
         antialias: true
       });
+      this.renderer.setClearColor("#ffffff");
 
       if (!this.props.roomId) {
         console.log("No roomId prop, randomly getting roomId from database");

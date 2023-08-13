@@ -9,13 +9,13 @@ export interface DbRow<T = unknown> {
   expand?: T;
 }
 
-export interface Asset extends DbRow {
+export interface AssetJson extends DbRow {
   file: string;
   label: string;
 }
 
 export interface InstancedModelExpands {
-  asset: Asset;
+  asset: AssetJson;
 }
 
 export interface InstancedModelPlacement {
@@ -36,6 +36,14 @@ export interface InstancedModel extends DbRow {
   placements: Array<InstancedModelPlacement>;
   expand?: Partial<InstancedModelExpands>;
 }
+export interface UserJson extends DbRow {
+
+}
+interface CharacterExpand {
+  owner: UserJson;
+  inventory: ItemJson[];
+  equipped: ItemJson[];
+}
 export interface CharacterJson extends DbRow {
   x: number;
   y: number;
@@ -44,6 +52,7 @@ export interface CharacterJson extends DbRow {
   owner: DbRowId;
   inventory: DbRowId[];
   equipped: DbRowId[];
+  expand: CharacterExpand;
 }
 
 export interface RoomExpands {
@@ -57,6 +66,30 @@ export interface Room extends Partial<DbRow> {
   label: string;
   description: string;
   expand?: Partial<RoomExpands>;
+}
+
+export interface ItemDefExpands extends Partial<DbRow> {
+  asset: AssetJson;
+}
+export interface ItemDefJson extends Partial<DbRow> {
+  wearable_bone_name: string;
+  asset: DbRowId;
+  wearable: boolean;
+  label: string;
+  description: string;
+  expand: ItemDefExpands;
+}
+
+export interface ItemExpands {
+  definition: ItemDefJson;
+  owner: CharacterJson;
+}
+export interface ItemJson extends Partial<DbRow> {
+  definition: DbRowId;
+  owner: DbRowId;
+  count: number;
+  description: string;
+  expand: ItemExpands;
 }
 
 export const db = {
@@ -90,10 +123,10 @@ export const db = {
   },
 
   fetchAsset (assetId: string, queryParams?: RecordQueryParams) {
-    return db.ctx.collection("assets").getOne<Asset>(assetId, queryParams);
+    return db.ctx.collection("assets").getOne<AssetJson>(assetId, queryParams);
   },
   fetchAssetByLabel(label: string) {
-    return db.ctx.collection("assets").getFirstListItem<Asset>(`label="${label}"`);
+    return db.ctx.collection("assets").getFirstListItem<AssetJson>(`label="${label}"`);
   },
   fetchRoom (roomId: string, queryParams?: RecordQueryParams) {
     return db.ctx.collection("rooms").getOne<Room>(roomId, queryParams);
@@ -108,5 +141,30 @@ export const db = {
   },
   selectCharacter (ch: CharacterJson) {
     db.selectedCharacter = ch;
+  },
+  equipItems (characterId: DbRowId, ...itemIds: DbRowId[]) {
+    db.ctx.collection("characters").update(characterId, {
+      "equipped+": itemIds
+    });
+  },
+  unequipItems (characterId: DbRowId, ...itemIds: DbRowId[]) {
+    db.ctx.collection("characters").update(characterId, {
+      "equipped-": itemIds
+    });
+  },
+  /**Create an instance of an item, using its item definition id
+   * and giving it to the character as an owner, as well as into its inventory
+  */
+  addItem (characterId: DbRowId, itemDefId: DbRowId, itemDescription: string = "") {
+    db.ctx.collection("item").create<ItemJson>({
+      count: 1,
+      definition: itemDefId,
+      description: itemDescription,
+      owner: characterId
+    } as ItemJson).then((item)=>{
+      db.ctx.collection("characters").update(characterId, {
+        "inventory+": item.id
+      });
+    });
   }
 };

@@ -1,10 +1,12 @@
 
 import { Group, Mesh, Object3D, Scene, Vector3 } from "three";
-import { CharacterJson, db } from "../../db";
+import { CharacterJson, db } from "./db";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader";
-import { helvetiker } from "../../assets/fonts/helvetiker_regular.typeface";
+import { helvetiker } from "./assets/fonts/helvetiker_regular.typeface";
+import { Item } from "./item";
+import { findObjectByName } from "./utils";
 
 const loader = new GLTFLoader();
 const fontLoader = new FontLoader();
@@ -37,7 +39,7 @@ export class Character {
   static all: Map<string, Character>;
 
   static async spawn(json: CharacterJson, scene: Scene) {
-    const result = new Character();
+    const result = new Character(json);
 
     const gltf = await CharModelProvider;
     result.scene = gltf.scene.clone(true);
@@ -77,7 +79,40 @@ export class Character {
   nameGeometry: TextGeometry;
   nameMesh: Mesh;
 
-  private constructor() {
+  equipped: Map<string, Item>;
+
+  definition: CharacterJson;
+
+  renderEquipped () {
+    for (let itemId of this.definition.equipped) {
+      Item.get(itemId).then((item)=>{  
+        this.equipped.set(itemId, item);
+        if (item.definition.wearable) {
+          const bonename = item.definition.wearable_bone_name;
+          console.log("Character.scene", this.scene);
+          const bone = findObjectByName(this.scene, bonename);
+          if (bone) {
+            bone.add(item.scene);
+          } else {
+            console.warn("No bone found for wearable_bone_name", bonename);
+          }
+        }
+      })
+    }
+  }
+
+  private constructor(definition: CharacterJson) {
+    this.definition = definition;
+    this.equipped = new Map();
+
+    if (!this.scene) {
+      CharModelProvider.then((gltf)=>{
+        this.scene = gltf.scene.clone(true);
+        this.renderEquipped();
+      });
+    } else {
+      this.renderEquipped();
+    }
   }
 }
 Character.all = new Map();

@@ -56,133 +56,6 @@
         }
     },
     {
-        "id": "r4lvx43tqtvaz9t",
-        "name": "item_defs",
-        "type": "base",
-        "system": false,
-        "schema": [
-            {
-                "id": "sqfk2svm",
-                "name": "wearable_bone_name",
-                "type": "text",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": 32,
-                    "pattern": ""
-                }
-            },
-            {
-                "id": "2g7a0wvb",
-                "name": "asset",
-                "type": "relation",
-                "system": false,
-                "required": false,
-                "options": {
-                    "collectionId": "hfe2jdhanb7par4",
-                    "cascadeDelete": false,
-                    "minSelect": null,
-                    "maxSelect": 1,
-                    "displayFields": []
-                }
-            },
-            {
-                "id": "hlxolbjv",
-                "name": "wearable",
-                "type": "bool",
-                "system": false,
-                "required": false,
-                "options": {}
-            },
-            {
-                "id": "yq9bquwy",
-                "name": "label",
-                "type": "text",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
-            },
-            {
-                "id": "0diqolao",
-                "name": "description",
-                "type": "text",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
-            }
-        ],
-        "indexes": [],
-        "listRule": null,
-        "viewRule": null,
-        "createRule": null,
-        "updateRule": null,
-        "deleteRule": null,
-        "options": {}
-    },
-    {
-        "id": "v310p909h6q9sa5",
-        "name": "items",
-        "type": "base",
-        "system": false,
-        "schema": [
-            {
-                "id": "opyz6nva",
-                "name": "definition",
-                "type": "relation",
-                "system": false,
-                "required": false,
-                "options": {
-                    "collectionId": "r4lvx43tqtvaz9t",
-                    "cascadeDelete": false,
-                    "minSelect": null,
-                    "maxSelect": 1,
-                    "displayFields": []
-                }
-            },
-            {
-                "id": "gqcumycg",
-                "name": "owner",
-                "type": "relation",
-                "system": false,
-                "required": false,
-                "options": {
-                    "collectionId": "g32k3w7qy4wbben",
-                    "cascadeDelete": false,
-                    "minSelect": null,
-                    "maxSelect": 1,
-                    "displayFields": []
-                }
-            },
-            {
-                "id": "mqpx8b9h",
-                "name": "count",
-                "type": "number",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": 1,
-                    "max": 64
-                }
-            }
-        ],
-        "indexes": [],
-        "listRule": null,
-        "viewRule": null,
-        "createRule": null,
-        "updateRule": null,
-        "deleteRule": null,
-        "options": {}
-    },
-    {
         "id": "hfe2jdhanb7par4",
         "name": "assets",
         "type": "base",
@@ -415,7 +288,7 @@
                     "minSelect": null,
                     "maxSelect": 1024,
                     "displayFields": [
-                        "definition"
+                        "description"
                     ]
                 }
             },
@@ -431,7 +304,7 @@
                     "minSelect": null,
                     "maxSelect": 64,
                     "displayFields": [
-                        "definition"
+                        "description"
                     ]
                 }
             },
@@ -454,6 +327,145 @@
         "createRule": "@request.auth.id != \"\" && @request.data.owner.id = @request.auth.id",
         "updateRule": "@request.auth.id != \"\" && @request.data.owner.id = @request.auth.id",
         "deleteRule": "@request.auth.id != \"\" && @request.data.owner.id = @request.auth.id",
+        "options": {}
+    },
+    {
+        "id": "v310p909h6q9sa5",
+        "name": "items",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "id": "opyz6nva",
+                "name": "definition",
+                "type": "relation",
+                "system": false,
+                "required": false,
+                "options": {
+                    "collectionId": "r4lvx43tqtvaz9t",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "id": "gqcumycg",
+                "name": "owner",
+                "type": "relation",
+                "system": false,
+                "required": false,
+                "options": {
+                    "collectionId": "g32k3w7qy4wbben",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "id": "mqpx8b9h",
+                "name": "count",
+                "type": "number",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": 1,
+                    "max": 64
+                }
+            },
+            {
+                "id": "bu8r7o59",
+                "name": "description",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": 64,
+                    "pattern": ""
+                }
+            }
+        ],
+        "indexes": [],
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": null,
+        "updateRule": null,
+        "deleteRule": null,
+        "options": {}
+    },
+    {
+        "id": "r4lvx43tqtvaz9t",
+        "name": "item_defs",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "id": "sqfk2svm",
+                "name": "wearable_bone_name",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": 32,
+                    "pattern": ""
+                }
+            },
+            {
+                "id": "2g7a0wvb",
+                "name": "asset",
+                "type": "relation",
+                "system": false,
+                "required": false,
+                "options": {
+                    "collectionId": "hfe2jdhanb7par4",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "id": "hlxolbjv",
+                "name": "wearable",
+                "type": "bool",
+                "system": false,
+                "required": false,
+                "options": {}
+            },
+            {
+                "id": "yq9bquwy",
+                "name": "label",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "id": "0diqolao",
+                "name": "description",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            }
+        ],
+        "indexes": [],
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": null,
+        "updateRule": null,
+        "deleteRule": null,
         "options": {}
     }
 ]
