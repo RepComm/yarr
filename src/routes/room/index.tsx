@@ -1,4 +1,6 @@
 
+// import { navigate } from 'preact-router';
+import { route } from "preact-router";
 import { BoxGeometry, Camera, Color, DirectionalLight, InstancedMesh, Intersection, Light, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer } from "three";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Component, h } from "preact";
@@ -141,10 +143,13 @@ function spawnCharacters (occupants: CharacterJson[], scene: Scene) {
     const diff = now - updatedDate;
     const minuteDiff = diff / (1000 / 60);
     
+    let isLocal = false;
+    if (occupant.id === db.selectedCharacterId) isLocal = true;
+
     //ignore 30 minute old data
     //TODO - handle updated character spawning
-    if (minuteDiff > 30) continue;
-    
+    if (minuteDiff > 30 && !isLocal) continue;
+
     console.log("Spawning", occupant);
     
     // if (occupant.updated)
@@ -153,7 +158,7 @@ function spawnCharacters (occupants: CharacterJson[], scene: Scene) {
         occupant.x, occupant.y, occupant.z
       );
       const local = findObjectByName(ch.scene, "local");
-      if (!db.selectedCharacter || occupant.id !== db.selectedCharacter.id) {
+      if (!db.selectedCharacterId || occupant.id !== db.selectedCharacterId) {
         local.visible = false;
       } else {
         TryResolveLocalCharacter(ch);

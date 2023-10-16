@@ -9,7 +9,6 @@ interface Props {
 }
 interface State {
 	characters: CharacterJson[];
-	selectedCharacterId: DbRowId;
 }
 
 export default class Home extends Component<Props, State> {
@@ -43,12 +42,13 @@ export default class Home extends Component<Props, State> {
 
 				let chd = <Profile
 					character={ch}
-					isSelected={ch.id === this.state.selectedCharacterId}
+					isSelected={ch.id === db.selectedCharacterId}
 					onSelect={(ch) => {
-						db.selectCharacter(ch);
-						this.setState({
-							selectedCharacterId: ch.id
-						})
+						db.selectedCharacterId = ch.id;
+
+						//show the changed selection
+						this.forceUpdate();
+
 						console.log("Selected character", ch.name);
 					}}
 				></Profile>

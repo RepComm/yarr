@@ -93,7 +93,6 @@ export interface ItemJson extends Partial<DbRow> {
 }
 
 export const db = {
-  selectedCharacter: null as CharacterJson,
   ctx: null as Pocketbase,
   init () {
     const dbPort = 8090;
@@ -139,8 +138,11 @@ export const db = {
       filter
     });
   },
-  selectCharacter (ch: CharacterJson) {
-    db.selectedCharacter = ch;
+  set selectedCharacterId (id: DbRowId) {
+    localStorage.setItem("selCharId", id);
+  },
+  get selectedCharacterId (): DbRowId {
+    return localStorage.getItem("selCharId");
   },
   equipItems (characterId: DbRowId, ...itemIds: DbRowId[]) {
     db.ctx.collection("characters").update(characterId, {
@@ -168,3 +170,4 @@ export const db = {
     });
   }
 };
+// console.log(db);
