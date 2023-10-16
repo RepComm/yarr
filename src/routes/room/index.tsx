@@ -1,5 +1,5 @@
 
-import { BoxGeometry, Camera, Color, DirectionalLight, InstancedMesh, Light, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, Object3D, OrthographicCamera, PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { BoxGeometry, Camera, Color, DirectionalLight, InstancedMesh, Intersection, Light, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer } from "three";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Component, h } from "preact";
 import style from "./style.css";
@@ -59,55 +59,59 @@ async function loadRoom(roomId: string, scene: Scene) {
   return room;
 }
 
-function fixScene (scene: Scene, camera: Camera) {
-  let materialNames = new Map<string, Material>();
-  const white = new Color("white");
-  const black = new Color("black");
+interface ChildFixConfig {
+  camera: Camera;
+  materialNames: Map<string, Material>;
+  white: Color;
+  black: Color;
+}
 
-  scene.traverse((child) => {
-    if (child.name === "cameraMountPoint") {
-      // child.add(this.camera);
-      child.getWorldPosition(camera.position);
-      child.getWorldQuaternion(camera.quaternion);
+function fixChild ( child: Object3D, cfg: ChildFixConfig) {
+  const {
+    camera, materialNames, white, black
+  } = cfg;
+  if (child.name === "cameraMountPoint") {
+    // child.add(this.camera);
+    child.getWorldPosition(camera.position);
+    child.getWorldQuaternion(camera.quaternion);
+  }
+  if (child.userData) {
+    if (child.userData.invis === "true") {
+      child.visible = false;
     }
-    if (child.userData) {
-      if (child.userData.invis === "true") {
-        child.visible = false;
-      }
-      let mesh = child as Mesh;
-      if (mesh.isMesh) {
-        let mat = mesh.material as MeshStandardMaterial;
+    let mesh = child as Mesh;
+    if (mesh.isMesh) {
+      let mat = mesh.material as MeshStandardMaterial;
 
-        if (mat.userData) {
+      if (mat.userData) {
 
-          if (mat.userData.toon !== "false") {
-            let nextMaterial = materialNames.get(mat.name);
-            if (!nextMaterial) {
-              nextMaterial = new MeshToonMaterial({
-                color: mat.color,
-                name: mat.name,
-                visible: mat.visible,
-                map: mat.map,
-                transparent: mat.userData.transparent==="true" ? true : false,
-                emissive: mat.userData.emissive ? white : black,
-                emissiveIntensity: mat.userData.emissive || 1
-              });
-              materialNames.set(nextMaterial.name, nextMaterial);
-            }
-            mesh.material = nextMaterial;
+        if (mat.userData.toon !== "false") {
+          let nextMaterial = materialNames.get(mat.name);
+          if (!nextMaterial) {
+            nextMaterial = new MeshToonMaterial({
+              color: mat.color,
+              name: mat.name,
+              visible: mat.visible,
+              map: mat.map,
+              transparent: mat.userData.transparent==="true" ? true : false,
+              emissive: mat.userData.emissive ? white : black,
+              emissiveIntensity: mat.userData.emissive || 1
+            });
+            materialNames.set(nextMaterial.name, nextMaterial);
           }
+          mesh.material = nextMaterial;
         }
       }
-
-      let lgt: DirectionalLight = child as any;
-      
-      if (lgt.isLight) {
-        // if (lgt.isDirectionalLight) {
-          lgt.intensity /= 2000;
-        // }
-      }
     }
-  });
+
+    let lgt: DirectionalLight = child as any;
+    
+    if (lgt.isLight) {
+      // if (lgt.isDirectionalLight) {
+        lgt.intensity /= 2000;
+      // }
+    }
+  }
 }
 
 async function getRandomRoomId () {
@@ -148,6 +152,12 @@ function spawnCharacters (occupants: CharacterJson[], scene: Scene) {
   }
 }
 
+export interface Clickables {
+  objects: Array<Object3D>;
+  cb: (inters: Intersection[])=> void;
+  recursive?: boolean;
+}
+
 export default class Room extends Component<Props, State> {
 
   _ref?: HTMLDivElement;
@@ -155,6 +165,18 @@ export default class Room extends Component<Props, State> {
   camera?: Camera;
   renderer?: WebGLRenderer;
   hasInit?: boolean;
+
+  caster: Raycaster;
+  pointer: Vector2;
+  onClick: (evt: MouseEvent)=> void;
+  clickables: Set<Clickables>;
+
+  listenToClick (c: Clickables) {
+    this.clickables.add(c);
+  }
+  deafenToClick (c: Clickables) {
+    this.clickables.delete(c);
+  }
 
   constructor() {
     super();
@@ -166,8 +188,40 @@ export default class Room extends Component<Props, State> {
       (this.camera as PerspectiveCamera).aspect = r.width / r.height;
       (this.camera as PerspectiveCamera).updateProjectionMatrix();
     }
+    
+    this.clickables = new Set();
+    this.caster = new Raycaster();
+    this.pointer = new Vector2();
+
+    this.onClick = (evt)=>{
+      let cx = evt.offsetX;
+      let cy = evt.offsetY;
+      let w = this.renderer.domElement.width;
+      let h = this.renderer.domElement.height;
+      
+      this.pointer.set(
+        (cx / w) * 2 -1,
+        - ((cy / h) * 2 -1)
+      );
+
+      this.caster.setFromCamera(this.pointer, this.camera);
+
+      for (const c of this.clickables) {
+        const result = this.caster.intersectObjects(
+          c.objects,
+          c.recursive
+          );
+        if (result.length > 0) c.cb(result);
+      }
+    }
   }
-  componentDidMount(): void {
+  componentWillUnmount(): void {
+    window.removeEventListener("click", this.onClick);
+  }
+  componentWillMount(): void {
+    window.addEventListener("click", this.onClick);
+  }
+  async componentDidMount() {
     const r = this._ref.getBoundingClientRect();
 
     if (!this.hasInit) {
@@ -177,9 +231,6 @@ export default class Room extends Component<Props, State> {
 
       const aspect = r.width / r.height;
 
-      // this.camera = new OrthographicCamera(
-      //   -aspect, aspect, -1, 1, 0.1, 100 
-      // );
       this.camera = new PerspectiveCamera();
       (this.camera as PerspectiveCamera).aspect = aspect;
       (this.camera as PerspectiveCamera).updateProjectionMatrix();
@@ -192,20 +243,11 @@ export default class Room extends Component<Props, State> {
 
       if (!this.props.roomId) {
         console.log("No roomId prop, randomly getting roomId from database");
-        getRandomRoomId().then((roomId)=>{
-          this.props.roomId = roomId;
-          loadRoom(this.props.roomId, this.scene).then((room)=>{
-            fixScene(this.scene, this.camera);
-            spawnCharacters(room.expand.occupants, this.scene);
-          });
-        });
+        this.props.roomId = await getRandomRoomId();
       } else {
         console.log("Found roomId prop, loading from database");
-        loadRoom(this.props.roomId, this.scene).then((room)=>{
-          fixScene(this.scene, this.camera);
-          spawnCharacters(room.expand.occupants, this.scene);
-        });
       }
+      this.setupRoom();
 
       // const geometry = new BoxGeometry(1, 1, 1);
       // const material = new MeshToonMaterial({color: "#556677"});
@@ -225,6 +267,43 @@ export default class Room extends Component<Props, State> {
 
     this._ref.appendChild(this.renderer.domElement);
     this.renderer.setSize(r.width, r.height);
+  }
+
+  setupRoom () {
+    loadRoom(this.props.roomId, this.scene).then((room)=>{
+      const cfg = {
+        materialNames: new Map<string, Material>(),
+        white: new Color("white"),
+        black: new Color("black"),
+        camera: this.camera
+      };
+      
+      const gotoRoom = new Array<Mesh>();
+
+      this.scene.traverse((child) => {
+        fixChild(child, cfg);
+        let m = child as Mesh;
+        if (m.isMesh && m.userData) {
+          if (m.userData["goto-room"]) {
+            gotoRoom.push(m);
+          }
+        }
+      });
+
+      this.listenToClick({
+        cb: (inters)=>{
+          const first = inters[0].object;
+          console.log("Go To Room", first.userData["goto-room"]);
+          console.log(inters);
+        },
+        objects: gotoRoom,
+        recursive: true
+      });
+
+      spawnCharacters(room.expand.occupants, this.scene);
+
+      this.scene
+    });
   }
 
   render() {
