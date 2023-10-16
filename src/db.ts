@@ -60,7 +60,7 @@ export interface RoomExpands {
   occupants: Array<CharacterJson>;
 }
 
-export interface Room extends Partial<DbRow> {
+export interface DbRoom extends Partial<DbRow> {
   model_placements: DbRowId[];
   occupants: DbRowId[];
   label: string;
@@ -129,7 +129,7 @@ export const db = {
     return db.ctx.collection("assets").getFirstListItem<AssetJson>(`label="${label}"`);
   },
   fetchRoom (roomId: string, queryParams?: RecordQueryParams) {
-    return db.ctx.collection("rooms").getOne<Room>(roomId, queryParams);
+    return db.ctx.collection("rooms").getOne<DbRoom>(roomId, queryParams);
   },
   listRooms (queryParams?: RecordFullListQueryParams) {
     return db.ctx.collection("rooms").getFullList(queryParams);

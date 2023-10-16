@@ -3,7 +3,7 @@ import { BoxGeometry, Camera, Color, DirectionalLight, InstancedMesh, Intersecti
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Component, h } from "preact";
 import style from "./style.css";
-import { CharacterJson, db } from "../../db";
+import { CharacterJson, DbRoom, db } from "../../db";
 import { Character } from "../../character";
 import Profile from "../../components/profile";
 import { findObjectByName } from "../../utils";
@@ -158,6 +158,17 @@ export interface Clickables {
   recursive?: boolean;
 }
 
+export async function tryNavRoom(name: string) {
+  let room: DbRoom = undefined;
+  try {
+    room = await db.ctx.collection("rooms").getFirstListItem<DbRoom>(`label="${name}"`);
+  } catch (ex) {
+    console.warn("Couldn't nav to room", name, "couldn't find valid db entry");
+    return;
+  }
+  window.location.href = `/play/${room.id}`;
+}
+
 export default class Room extends Component<Props, State> {
 
   _ref?: HTMLDivElement;
@@ -280,6 +291,12 @@ export default class Room extends Component<Props, State> {
       
       const gotoRoom = new Array<Mesh>();
 
+      const groundClickable = new Array<Mesh>();
+
+      const hoverAnim = new Array<Mesh>();
+
+      const minigame = new Array<Mesh>();
+
       this.scene.traverse((child) => {
         fixChild(child, cfg);
         let m = child as Mesh;
@@ -287,22 +304,60 @@ export default class Room extends Component<Props, State> {
           if (m.userData["goto-room"]) {
             gotoRoom.push(m);
           }
+          if (m.userData["ground-clickable"] || m.name === "ground-clickable") {
+            groundClickable.push(m);
+          }
+          // console.log(m.userData);
+          if (m.userData["hover-anim"]) {
+            hoverAnim.push(m);
+          }
+          if (m.userData["minigame"]) {
+            minigame.push(m);
+          }
         }
       });
 
       this.listenToClick({
         cb: (inters)=>{
           const first = inters[0].object;
-          console.log("Go To Room", first.userData["goto-room"]);
-          console.log(inters);
+          const roomName = first.userData["goto-room"];
+
+          console.log("Go To Room", roomName);
+
+          tryNavRoom(roomName);
         },
         objects: gotoRoom,
         recursive: true
       });
 
-      spawnCharacters(room.expand.occupants, this.scene);
+      this.listenToClick({
+        cb: (inters)=>{
+          const first = inters[0].object;
+          console.log("Ground clicked");
+        },
+        objects: groundClickable,
+        recursive: true
+      });
 
-      this.scene
+      this.listenToClick({
+        cb: (inters)=>{
+          const first = inters[0].object;
+          console.log("Hover anim", first.userData["hover-anim"]);
+        },
+        objects: hoverAnim,
+        recursive: true
+      });
+
+      this.listenToClick({
+        cb: (inters)=>{
+          const first = inters[0].object;
+          console.log("Open minigame", first.userData["minigame"]);
+        },
+        objects: minigame,
+        recursive: true
+      });
+
+      spawnCharacters(room.expand.occupants, this.scene);
     });
   }
 
