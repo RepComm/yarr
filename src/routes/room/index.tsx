@@ -136,7 +136,18 @@ function spawnCharacters (occupants: CharacterJson[], scene: Scene) {
   if (!occupants || occupants.length < 1) return;
 
   for (const occupant of occupants) {
-    console.log("Spawning", occupant.name);
+    const updatedDate = (new Date(occupant.updated)).getTime();
+    const now = Date.now();
+    const diff = now - updatedDate;
+    const minuteDiff = diff / (1000 / 60);
+    
+    //ignore 30 minute old data
+    //TODO - handle updated character spawning
+    if (minuteDiff > 30) continue;
+    
+    console.log("Spawning", occupant);
+    
+    // if (occupant.updated)
     Character.spawn(occupant, scene).then((ch)=>{
       ch.scene.position.set(
         occupant.x, occupant.y, occupant.z
