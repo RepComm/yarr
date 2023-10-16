@@ -3,18 +3,20 @@
 ![img](./example.png)
 ![img](./example1.png)
 
-## Implemented so far
-- `/` - home, also character chooser
-- `/play` - in-game
-- Characters appear in-game w/ equipped items and floating name
-- Profile cards show character w/ equipped items
+## Implemented
+- `/` - home, character selector
+- `/play` - renders a room and its occupants
+- Characters w/ equipped items and floating name
+- Profile cards
+- Clickable callbacks (raycasting)
+- Room navigation
 
-- Coffee Shop model
+### Rooms
+- Coffee Shop
 - Town model (imcomplete)
-- Character model
-- Jetpack model
 
-- GLTF userData props:
+### GLTF userData (blender custom props):
+  - `mesh.userData["goto-room"]` - DbRoom.label navigation
   - `material.userData.emission` - float that maps to emissiveIntensity of material, when included, emission property of material defaults to white instead of black
   - `mesh.userData.invis` - "true" or "false" strings, when true sets mesh.visible = false
   - `material.userData.toon` - when set to "false" skips toon material conversion

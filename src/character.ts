@@ -1,5 +1,5 @@
 
-import { Group, Mesh, Object3D, Scene, Vector3 } from "three";
+import { Color, Group, Mesh, MeshStandardMaterial, Object3D, Scene, Vector3 } from "three";
 import { CharacterJson, db } from "./db";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
@@ -69,6 +69,24 @@ export class Character {
     result.scene.add(result.nameMesh);
 
     // findObjectByName(result.scene, "body").rotateY(90);
+    
+    result.scene.traverse((child)=>{
+      let m = child as Mesh;
+      if (m.isMesh) {
+        let mat = m.material as MeshStandardMaterial;
+        const ud = mat.userData;
+        let colorable = ud["colorable"];
+        if (colorable === true || colorable === "true") {
+          if (json.color) {
+            mat = mat.clone();
+            mat.color = new Color(json.color);
+            m.material = mat;
+            console.log("Assigned color to character", json.color);
+          }
+        }
+      }
+    });
+
 
     scene.add(result.scene);
     Character.all.set(json.id, result);

@@ -52,6 +52,7 @@ export interface CharacterJson extends DbRow {
   owner: DbRowId;
   inventory: DbRowId[];
   equipped: DbRowId[];
+  color: string;
   expand: CharacterExpand;
 }
 
