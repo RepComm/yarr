@@ -1,13 +1,12 @@
 
 // import { navigate } from 'preact-router';
-import { route } from "preact-router";
-import { BoxGeometry, Camera, Color, DirectionalLight, InstancedMesh, Intersection, Light, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer } from "three";
-import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Component, h } from "preact";
-import style from "./style.css";
-import { CharacterJson, DbRoom, db } from "../../db";
+import { MutableRef, useRef } from "preact/hooks";
+import { Camera, Color, DirectionalLight, Intersection, Material, Mesh, MeshStandardMaterial, MeshToonMaterial, Object3D, PerspectiveCamera, Scene } from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Character } from "../../character";
-import Profile from "../../components/profile";
+import Three, { InitSceneCb } from "../../components/three";
+import { CharacterJson, DbRoom, db } from "../../db";
 import { findObjectByName } from "../../utils";
 
 interface Props {
@@ -23,38 +22,40 @@ async function loadRoom(roomId: string, scene: Scene) {
     expand: "model_placements,model_placements.asset,occupants"
   });
 
-  for (let instm of room.expand.model_placements) {
-    if (!instm.placements || !Array.isArray(instm.placements) || instm.placements.length < 1) {
-      console.error("Room", room.id, "instanced_models", instm.id, "placements invalid, expected [{\"x\":0,\"y\":0,\"z\":0}] like, but got", instm.placements);
-      continue;
-    }
-    const url = db.ctx.files.getUrl(
-      instm.expand.asset as any,
-      instm.expand.asset.file)
-
-    const gltf = await loader.loadAsync(url);
-
-
-    if (instm.placements.length === 1) {
-      const placement = instm.placements[0];
-
-      scene.add(gltf.scene);
-      gltf.scene.position.set(
-        placement.x,
-        placement.y,
-        placement.z
-      );
-    } else {
-      for (let i = 0; i < instm.placements.length; i++) {
-        const placement = instm.placements[i];
+  if (room && room.expand && room.expand.model_placements) {
+    for (let instm of room.expand.model_placements) {
+      if (!instm.placements || !Array.isArray(instm.placements) || instm.placements.length < 1) {
+        console.error("Room", room.id, "instanced_models", instm.id, "placements invalid, expected [{\"x\":0,\"y\":0,\"z\":0}] like, but got", instm.placements);
+        continue;
+      }
+      const url = db.ctx.files.getUrl(
+        instm.expand.asset as any,
+        instm.expand.asset.file)
   
-        const cloned = gltf.scene.clone(true);
-        cloned.position.set(
+      const gltf = await loader.loadAsync(url);
+  
+  
+      if (instm.placements.length === 1) {
+        const placement = instm.placements[0];
+  
+        scene.add(gltf.scene);
+        gltf.scene.position.set(
           placement.x,
           placement.y,
           placement.z
         );
-        scene.add(cloned);
+      } else {
+        for (let i = 0; i < instm.placements.length; i++) {
+          const placement = instm.placements[i];
+    
+          const cloned = gltf.scene.clone(true);
+          cloned.position.set(
+            placement.x,
+            placement.y,
+            placement.z
+          );
+          scene.add(cloned);
+        }
       }
     }
   }
@@ -185,115 +186,37 @@ export async function tryNavRoom(name: string) {
   window.location.href = `/play/${room.id}`;
 }
 
-export default class Room extends Component<Props, State> {
+export default class Room extends Component<Props,State> {
+  onInitScene: InitSceneCb;
+  
+  scene: Scene;
+  camera: Camera;
+  r: MutableRef<Three>;
 
-  _ref?: HTMLDivElement;
-  scene?: Scene;
-  camera?: Camera;
-  renderer?: WebGLRenderer;
-  hasInit?: boolean;
-
-  caster: Raycaster;
-  pointer: Vector2;
-  onClick: (evt: MouseEvent)=> void;
-  clickables: Set<Clickables>;
-
-  listenToClick (c: Clickables) {
-    this.clickables.add(c);
-  }
-  deafenToClick (c: Clickables) {
-    this.clickables.delete(c);
-  }
-
-  constructor() {
+  constructor () {
     super();
 
-    window.onresize = () => {
-      const r = this._ref.getBoundingClientRect();
-
-      this.renderer.setSize(r.width, r.height);
-      (this.camera as PerspectiveCamera).aspect = r.width / r.height;
-      (this.camera as PerspectiveCamera).updateProjectionMatrix();
-    }
-    
-    this.clickables = new Set();
-    this.caster = new Raycaster();
-    this.pointer = new Vector2();
-
-    this.onClick = (evt)=>{
-      let cx = evt.offsetX;
-      let cy = evt.offsetY;
-      let w = this.renderer.domElement.width;
-      let h = this.renderer.domElement.height;
-      
-      this.pointer.set(
-        (cx / w) * 2 -1,
-        - ((cy / h) * 2 -1)
-      );
-
-      this.caster.setFromCamera(this.pointer, this.camera);
-
-      for (const c of this.clickables) {
-        const result = this.caster.intersectObjects(
-          c.objects,
-          c.recursive
-          );
-        if (result.length > 0) c.cb(result);
-      }
-    }
-  }
-  componentWillUnmount(): void {
-    window.removeEventListener("click", this.onClick);
-  }
-  componentWillMount(): void {
-    window.addEventListener("click", this.onClick);
-  }
-  async componentDidMount() {
-    const r = this._ref.getBoundingClientRect();
-
-    if (!this.hasInit) {
-      this.hasInit = true;
-
-      this.scene = new Scene();
-
-      const aspect = r.width / r.height;
-
-      this.camera = new PerspectiveCamera();
-      (this.camera as PerspectiveCamera).aspect = aspect;
-      (this.camera as PerspectiveCamera).updateProjectionMatrix();
-
-      this.renderer = new WebGLRenderer({
-        alpha: false,
-        antialias: true
-      });
-      this.renderer.setClearColor("#ffffff");
+    this.onInitScene = ()=>{
+      const scene = this.scene = new Scene();
+      const camera = this.camera = new PerspectiveCamera();
 
       if (!this.props.roomId) {
         console.log("No roomId prop, randomly getting roomId from database");
-        this.props.roomId = await getRandomRoomId();
+        getRandomRoomId().then((roomId)=>{
+          this.props.roomId = roomId;
+          this.setupRoom();
+        });
       } else {
         console.log("Found roomId prop, loading from database");
+        this.setupRoom();
       }
-      this.setupRoom();
 
-      // const geometry = new BoxGeometry(1, 1, 1);
-      // const material = new MeshToonMaterial({color: "#556677"});
-      // const cube = new Mesh(geometry, material);
-      // cube.position.y = 1;
-      // this.scene.add(cube);
-
-      const render = () => {
-        requestAnimationFrame(render);
-
-        // cube.rotateY(0.1);
-
-        this.renderer.render(this.scene, this.camera);
+      return {
+        camera,
+        scene
       };
-      requestAnimationFrame(render);
-    }
+    };
 
-    this._ref.appendChild(this.renderer.domElement);
-    this.renderer.setSize(r.width, r.height);
   }
 
   setupRoom () {
@@ -333,7 +256,7 @@ export default class Room extends Component<Props, State> {
         }
       });
 
-      this.listenToClick({
+      this.r.current.listenToClick({
         cb: (inters)=>{
           const first = inters[0].object;
           const roomName = first.userData["goto-room"];
@@ -346,7 +269,7 @@ export default class Room extends Component<Props, State> {
         recursive: true
       });
 
-      this.listenToClick({
+      this.r.current.listenToClick({
         cb: (inters)=>{
           const first = inters[0].object;
           console.log("Ground clicked");
@@ -355,7 +278,7 @@ export default class Room extends Component<Props, State> {
         recursive: true
       });
 
-      this.listenToClick({
+      this.r.current.listenToClick({
         cb: (inters)=>{
           const first = inters[0].object;
           console.log("Hover anim", first.userData["hover-anim"]);
@@ -364,7 +287,7 @@ export default class Room extends Component<Props, State> {
         recursive: true
       });
 
-      this.listenToClick({
+      this.r.current.listenToClick({
         cb: (inters)=>{
           const first = inters[0].object;
           console.log("Open minigame", first.userData["minigame"]);
@@ -377,10 +300,15 @@ export default class Room extends Component<Props, State> {
     });
   }
 
-  render() {
-    return <div className={style.room} ref={(_ref) => {
-      this._ref = _ref;
-    }}>
-    </div>
+  render () {
+    this.r = useRef<Three>();
+
+    const result = <Three
+      ref={this.r}
+      containerClassName=""
+      onInitScene={this.onInitScene}
+    />
+
+    return result;
   }
 }
