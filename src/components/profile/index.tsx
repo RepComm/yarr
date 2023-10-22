@@ -1,6 +1,6 @@
 import { Component, h } from "preact";
 import style from "./style.css";
-import { CharacterJson } from "../../db";
+import { DbCharacter } from "../../db";
 import { osr } from "../../osr";
 import { CharModelProvider, Character } from "../../character";
 import { AmbientLight, Camera, Object3D, PerspectiveCamera, Scene } from "three";
@@ -8,11 +8,11 @@ import { findObjectByName, has } from "../../utils";
 import { Item } from "../../item";
 
 interface OnProfileSelect {
-  (character: CharacterJson): void;
+  (character: DbCharacter): void;
 }
 
 interface Props {
-  character: CharacterJson;
+  character: DbCharacter;
   onSelect?: OnProfileSelect;
   isDialog?: boolean;
   isSelected?: boolean;

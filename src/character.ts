@@ -1,6 +1,6 @@
 
 import { Color, Group, Mesh, MeshStandardMaterial, Object3D, Scene, Vector3 } from "three";
-import { CharacterJson, db } from "./db";
+import { DbCharacter, db } from "./db";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader";
@@ -38,7 +38,7 @@ export class Character {
 
   static all: Map<string, Character>;
 
-  static async spawn(json: CharacterJson, scene: Scene) {
+  static async spawn(json: DbCharacter, scene: Scene) {
     const result = new Character(json);
 
     const gltf = await CharModelProvider;
@@ -99,7 +99,7 @@ export class Character {
 
   equipped: Map<string, Item>;
 
-  definition: CharacterJson;
+  definition: DbCharacter;
 
   renderEquipped () {
     for (let itemId of this.definition.equipped) {
@@ -118,7 +118,7 @@ export class Character {
     }
   }
 
-  private constructor(definition: CharacterJson) {
+  private constructor(definition: DbCharacter) {
     this.definition = definition;
     this.equipped = new Map();
 

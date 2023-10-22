@@ -6,7 +6,7 @@ import { Camera, Color, DirectionalLight, Intersection, Material, Mesh, MeshStan
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Character } from "../../character";
 import Three, { InitSceneCb } from "../../components/three";
-import { CharacterJson, DbRoom, db } from "../../db";
+import { DbCharacter, DbRoom, db } from "../../db";
 import { findObjectByName } from "../../utils";
 
 interface Props {
@@ -135,7 +135,7 @@ export const LocalCharacter = new Promise((resolve,reject)=>{
   }
 });
 
-function spawnCharacters (occupants: CharacterJson[], scene: Scene) {
+function spawnCharacters (occupants: DbCharacter[], scene: Scene) {
   if (!occupants || occupants.length < 1) return;
 
   for (const occupant of occupants) {
@@ -151,7 +151,7 @@ function spawnCharacters (occupants: CharacterJson[], scene: Scene) {
     //TODO - handle updated character spawning
     if (minuteDiff > 30 && !isLocal) continue;
 
-    console.log("Spawning", occupant);
+    console.log("Spawning", occupant.name);
     
     // if (occupant.updated)
     Character.spawn(occupant, scene).then((ch)=>{
@@ -169,10 +169,10 @@ function spawnCharacters (occupants: CharacterJson[], scene: Scene) {
   }
 }
 
-export interface Clickables {
-  objects: Array<Object3D>;
-  cb: (inters: Intersection[])=> void;
-  recursive?: boolean;
+export async function characterJoinRoom (toId: string, charId: string) {
+  return db.ctx.collection("characters").update<DbCharacter>(charId, {
+    room: toId
+  } as Partial<DbCharacter>)
 }
 
 export async function tryNavRoom(name: string) {
@@ -183,7 +183,11 @@ export async function tryNavRoom(name: string) {
     console.warn("Couldn't nav to room", name, "couldn't find valid db entry");
     return;
   }
-  window.location.href = `/play/${room.id}`;
+  await characterJoinRoom(room.id, db.selectedCharacterId);
+  
+  setTimeout(()=>{
+    window.location.href = `/play/${room.id}`;
+  }, 10);
 }
 
 export default class Room extends Component<Props,State> {
@@ -200,16 +204,23 @@ export default class Room extends Component<Props,State> {
       const scene = this.scene = new Scene();
       const camera = this.camera = new PerspectiveCamera();
 
-      if (!this.props.roomId) {
-        console.log("No roomId prop, randomly getting roomId from database");
-        getRandomRoomId().then((roomId)=>{
-          this.props.roomId = roomId;
-          this.setupRoom();
-        });
-      } else {
-        console.log("Found roomId prop, loading from database");
+      let roomIdResolve = !this.props.roomId ? getRandomRoomId() : Promise.resolve(this.props.roomId);
+      roomIdResolve.then((roomId)=>{
+        // console.log(roomId);
+        db.selectedRoomId = roomId;
+        this.props.roomId = roomId;
         this.setupRoom();
-      }
+      });
+      // if (!this.props.roomId) {
+      //   console.log("No roomId prop, randomly getting roomId from database");
+      //   getRandomRoomId().then((roomId)=>{
+      //     this.props.roomId = roomId;
+      //     this.setupRoom();
+      //   });
+      // } else {
+      //   console.log("Found roomId prop, loading from database");
+      //   this.setupRoom();
+      // }
 
       return {
         camera,

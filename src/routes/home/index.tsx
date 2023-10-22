@@ -1,6 +1,6 @@
 import { Component, h } from 'preact';
 import style from './style.css';
-import { CharacterJson, DbRowId, db } from '../../db';
+import { DbCharacter, DbRowId, db } from '../../db';
 import Loading from '../../components/loading';
 import Profile from '../../components/profile';
 
@@ -8,7 +8,7 @@ interface Props {
 
 }
 interface State {
-	characters: CharacterJson[];
+	characters: DbCharacter[];
 }
 
 export default class Home extends Component<Props, State> {

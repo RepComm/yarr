@@ -43,8 +43,9 @@ interface CharacterExpand {
   owner: UserJson;
   inventory: ItemJson[];
   equipped: ItemJson[];
+  room: DbRoom;
 }
-export interface CharacterJson extends DbRow {
+export interface DbCharacter extends DbRow {
   x: number;
   y: number;
   z: number;
@@ -53,12 +54,13 @@ export interface CharacterJson extends DbRow {
   inventory: DbRowId[];
   equipped: DbRowId[];
   color: string;
+  room: DbRowId;
   expand: CharacterExpand;
 }
 
 export interface RoomExpands {
   model_placements: Array<InstancedModel>;
-  occupants: Array<CharacterJson>;
+  occupants: Array<DbCharacter>;
 }
 
 export interface DbRoom extends Partial<DbRow> {
@@ -83,7 +85,7 @@ export interface ItemDefJson extends Partial<DbRow> {
 
 export interface ItemExpands {
   definition: ItemDefJson;
-  owner: CharacterJson;
+  owner: DbCharacter;
 }
 export interface ItemJson extends Partial<DbRow> {
   definition: DbRowId;
@@ -135,7 +137,7 @@ export const db = {
     return db.ctx.collection("rooms").getFullList(queryParams);
   },
   listCharacters (filter: string, max: number = 10) {
-    return db.ctx.collection("characters").getList<CharacterJson>(0, max, {
+    return db.ctx.collection("characters").getList<DbCharacter>(0, max, {
       filter
     });
   },
@@ -144,6 +146,12 @@ export const db = {
   },
   get selectedCharacterId (): DbRowId {
     return localStorage.getItem("selCharId");
+  },
+  set selectedRoomId (id: DbRowId) {
+    localStorage.setItem("selRoomId", id);
+  },
+  get selectedRoomId (): DbRowId {
+    return localStorage.getItem("selRoomId");
   },
   equipItems (characterId: DbRowId, ...itemIds: DbRowId[]) {
     db.ctx.collection("characters").update(characterId, {

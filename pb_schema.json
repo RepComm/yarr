@@ -141,195 +141,6 @@
         "options": {}
     },
     {
-        "id": "qlwdj6hjgkqkzyj",
-        "name": "rooms",
-        "type": "base",
-        "system": false,
-        "schema": [
-            {
-                "id": "xvaw0iyl",
-                "name": "model_placements",
-                "type": "relation",
-                "system": false,
-                "required": false,
-                "options": {
-                    "collectionId": "44uodfl84s01cyw",
-                    "cascadeDelete": false,
-                    "minSelect": null,
-                    "maxSelect": null,
-                    "displayFields": []
-                }
-            },
-            {
-                "id": "melakvdk",
-                "name": "occupants",
-                "type": "relation",
-                "system": false,
-                "required": false,
-                "options": {
-                    "collectionId": "g32k3w7qy4wbben",
-                    "cascadeDelete": false,
-                    "minSelect": null,
-                    "maxSelect": 64,
-                    "displayFields": [
-                        "name"
-                    ]
-                }
-            },
-            {
-                "id": "bhuto7xh",
-                "name": "label",
-                "type": "text",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
-            },
-            {
-                "id": "bzvkvbjt",
-                "name": "description",
-                "type": "text",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
-            }
-        ],
-        "indexes": [],
-        "listRule": "@request.auth.id != \"\"",
-        "viewRule": "@request.auth.id != \"\"",
-        "createRule": null,
-        "updateRule": null,
-        "deleteRule": null,
-        "options": {}
-    },
-    {
-        "id": "g32k3w7qy4wbben",
-        "name": "characters",
-        "type": "base",
-        "system": false,
-        "schema": [
-            {
-                "id": "qmho35ej",
-                "name": "x",
-                "type": "number",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null
-                }
-            },
-            {
-                "id": "cb9tkydi",
-                "name": "y",
-                "type": "number",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null
-                }
-            },
-            {
-                "id": "9z7kx0fg",
-                "name": "z",
-                "type": "number",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null
-                }
-            },
-            {
-                "id": "vlspggp8",
-                "name": "name",
-                "type": "text",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
-            },
-            {
-                "id": "uchcupfk",
-                "name": "owner",
-                "type": "relation",
-                "system": false,
-                "required": true,
-                "options": {
-                    "collectionId": "_pb_users_auth_",
-                    "cascadeDelete": false,
-                    "minSelect": null,
-                    "maxSelect": 1,
-                    "displayFields": [
-                        "name"
-                    ]
-                }
-            },
-            {
-                "id": "ihtl8ijv",
-                "name": "inventory",
-                "type": "relation",
-                "system": false,
-                "required": false,
-                "options": {
-                    "collectionId": "v310p909h6q9sa5",
-                    "cascadeDelete": false,
-                    "minSelect": null,
-                    "maxSelect": 1024,
-                    "displayFields": [
-                        "description"
-                    ]
-                }
-            },
-            {
-                "id": "gzdlkolj",
-                "name": "equipped",
-                "type": "relation",
-                "system": false,
-                "required": false,
-                "options": {
-                    "collectionId": "v310p909h6q9sa5",
-                    "cascadeDelete": false,
-                    "minSelect": null,
-                    "maxSelect": 64,
-                    "displayFields": [
-                        "description"
-                    ]
-                }
-            },
-            {
-                "id": "rrgintp6",
-                "name": "color",
-                "type": "text",
-                "system": false,
-                "required": true,
-                "options": {
-                    "min": 7,
-                    "max": 7,
-                    "pattern": "^#[a-f0-9]{6}$"
-                }
-            }
-        ],
-        "indexes": [],
-        "listRule": "@request.auth.id != \"\"",
-        "viewRule": "@request.auth.id != \"\"",
-        "createRule": "@request.auth.id != \"\" && @request.data.owner.id = @request.auth.id",
-        "updateRule": "@request.auth.id != \"\" && @request.data.owner.id = @request.auth.id",
-        "deleteRule": "@request.auth.id != \"\" && @request.data.owner.id = @request.auth.id",
-        "options": {}
-    },
-    {
         "id": "v310p909h6q9sa5",
         "name": "items",
         "type": "base",
@@ -463,6 +274,272 @@
         "indexes": [],
         "listRule": "@request.auth.id != \"\"",
         "viewRule": "@request.auth.id != \"\"",
+        "createRule": null,
+        "updateRule": null,
+        "deleteRule": null,
+        "options": {}
+    },
+    {
+        "id": "qlwdj6hjgkqkzyj",
+        "name": "rooms",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "id": "xvaw0iyl",
+                "name": "model_placements",
+                "type": "relation",
+                "system": false,
+                "required": false,
+                "options": {
+                    "collectionId": "44uodfl84s01cyw",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": null,
+                    "displayFields": []
+                }
+            },
+            {
+                "id": "melakvdk",
+                "name": "occupants",
+                "type": "relation",
+                "system": false,
+                "required": false,
+                "options": {
+                    "collectionId": "g32k3w7qy4wbben",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 64,
+                    "displayFields": [
+                        "name"
+                    ]
+                }
+            },
+            {
+                "id": "bhuto7xh",
+                "name": "label",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "id": "bzvkvbjt",
+                "name": "description",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "id": "zxahimrh",
+                "name": "is_listable",
+                "type": "bool",
+                "system": false,
+                "required": false,
+                "options": {}
+            }
+        ],
+        "indexes": [],
+        "listRule": "@request.auth.id != \"\" && is_listable = true",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": null,
+        "updateRule": null,
+        "deleteRule": null,
+        "options": {}
+    },
+    {
+        "id": "g32k3w7qy4wbben",
+        "name": "characters",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "id": "qmho35ej",
+                "name": "x",
+                "type": "number",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null
+                }
+            },
+            {
+                "id": "cb9tkydi",
+                "name": "y",
+                "type": "number",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null
+                }
+            },
+            {
+                "id": "9z7kx0fg",
+                "name": "z",
+                "type": "number",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null
+                }
+            },
+            {
+                "id": "vlspggp8",
+                "name": "name",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "id": "uchcupfk",
+                "name": "owner",
+                "type": "relation",
+                "system": false,
+                "required": true,
+                "options": {
+                    "collectionId": "_pb_users_auth_",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": [
+                        "name"
+                    ]
+                }
+            },
+            {
+                "id": "ihtl8ijv",
+                "name": "inventory",
+                "type": "relation",
+                "system": false,
+                "required": false,
+                "options": {
+                    "collectionId": "v310p909h6q9sa5",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1024,
+                    "displayFields": [
+                        "description"
+                    ]
+                }
+            },
+            {
+                "id": "gzdlkolj",
+                "name": "equipped",
+                "type": "relation",
+                "system": false,
+                "required": false,
+                "options": {
+                    "collectionId": "v310p909h6q9sa5",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 64,
+                    "displayFields": [
+                        "description"
+                    ]
+                }
+            },
+            {
+                "id": "rrgintp6",
+                "name": "color",
+                "type": "text",
+                "system": false,
+                "required": true,
+                "options": {
+                    "min": 7,
+                    "max": 7,
+                    "pattern": "^#[a-f0-9]{6}$"
+                }
+            },
+            {
+                "id": "qah2sg2e",
+                "name": "room",
+                "type": "relation",
+                "system": false,
+                "required": false,
+                "options": {
+                    "collectionId": "qlwdj6hjgkqkzyj",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "id": "nkmkgbt1",
+                "name": "roles",
+                "type": "relation",
+                "system": false,
+                "required": false,
+                "options": {
+                    "collectionId": "cxxenim5mest0e2",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": null,
+                    "displayFields": [
+                        "name"
+                    ]
+                }
+            }
+        ],
+        "indexes": [],
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": "@request.auth.id != \"\" && @request.auth.id = owner.id",
+        "updateRule": "@request.auth.id != \"\" && @request.auth.id = owner.id",
+        "deleteRule": "@request.auth.id != \"\" && @request.auth.id = owner.id",
+        "options": {}
+    },
+    {
+        "id": "cxxenim5mest0e2",
+        "name": "roles",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "id": "qsiyb4wg",
+                "name": "name",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "id": "wh5mils1",
+                "name": "description",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            }
+        ],
+        "indexes": [],
+        "listRule": null,
+        "viewRule": "@collection.characters.owner.id = @request.auth.id && @collection.characters.roles.id ?= id",
         "createRule": null,
         "updateRule": null,
         "deleteRule": null,
