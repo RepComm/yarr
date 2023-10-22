@@ -24,6 +24,8 @@ onModelBeforeUpdate((e)=>{
   const next_room_id = e.model.get("room");
   let next_room_name = "";
 
+  if (prev_room_id === next_room_id) return;
+
   const pid = e.model.getId();
   const pname = e.model.get("name");
 

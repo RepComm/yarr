@@ -49,6 +49,11 @@ export interface DbCharacter extends DbRow {
   x: number;
   y: number;
   z: number;
+  
+  rx: number;
+  ry: number;
+  rz: number;
+
   name: string;
   owner: DbRowId;
   inventory: DbRowId[];

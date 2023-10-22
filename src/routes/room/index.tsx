@@ -142,10 +142,14 @@ function spawnCharacters (occupants: DbCharacter[], scene: Scene) {
     const updatedDate = (new Date(occupant.updated)).getTime();
     const now = Date.now();
     const diff = now - updatedDate;
-    const minuteDiff = diff / (1000 / 60);
+    const secondDiff = diff / 1000;
+
+    const minuteDiff = secondDiff / 60;
     
     let isLocal = false;
     if (occupant.id === db.selectedCharacterId) isLocal = true;
+
+    console.log(minuteDiff);
 
     //ignore 30 minute old data
     //TODO - handle updated character spawning
@@ -211,16 +215,6 @@ export default class Room extends Component<Props,State> {
         this.props.roomId = roomId;
         this.setupRoom();
       });
-      // if (!this.props.roomId) {
-      //   console.log("No roomId prop, randomly getting roomId from database");
-      //   getRandomRoomId().then((roomId)=>{
-      //     this.props.roomId = roomId;
-      //     this.setupRoom();
-      //   });
-      // } else {
-      //   console.log("Found roomId prop, loading from database");
-      //   this.setupRoom();
-      // }
 
       return {
         camera,
@@ -283,7 +277,15 @@ export default class Room extends Component<Props,State> {
       this.r.current.listenToClick({
         cb: (inters)=>{
           const first = inters[0].object;
-          console.log("Ground clicked");
+          const inter = inters[0];
+          
+          // console.log("Ground clicked", inter.point);
+          // Character.all.get(db.selectedCharacterId).
+          db.ctx.collection("characters").update(db.selectedCharacterId, {
+            x: inter.point.x,
+            y: inter.point.y,
+            z: inter.point.z
+          } as Partial<DbCharacter>);
         },
         objects: groundClickable,
         recursive: true
