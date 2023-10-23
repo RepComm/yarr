@@ -7,6 +7,7 @@ import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { helvetiker } from "./assets/fonts/helvetiker_regular.typeface";
 import { Item } from "./item";
 import { findObjectByName } from "./utils";
+import { UnsubscribeFunc } from "pocketbase";
 
 const loader = new GLTFLoader();
 const fontLoader = new FontLoader();
@@ -183,8 +184,10 @@ export class Character {
 
   updateInterval: any;
 
+  unsubPromise: Promise<UnsubscribeFunc>;
+
   init() {
-    db.ctx.collection("characters")
+    this.unsubPromise = db.ctx.collection("characters")
       .subscribe<DbCharacter>(
         this.definition.id,
         (evt) => {
@@ -215,8 +218,16 @@ export class Character {
   }
 
   deinit() {
-    db.ctx.collection("characters")
+    //stop subscription
+    this.unsubPromise.then((unsub)=>{
+      unsub();
+    });
+
+    //stop animation
     clearInterval(this.updateInterval);
+    
+    //remove model from scene
+    this.scene.removeFromParent();
   }
 
   update(delta: number, absTime: number) {
@@ -226,6 +237,15 @@ export class Character {
     }
 
     // this.anim.mixer.setTime(absTime/1000);
+  }
+
+  static remove (id: string): boolean {
+    const which = Character.all.get(id);
+    Character.all.delete(id);
+    if (!which) return false;
+
+    which.deinit();
+    return true;
   }
 }
 Character.all = new Map();

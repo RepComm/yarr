@@ -1,5 +1,4 @@
 
-// import { navigate } from 'preact-router';
 import { Component, h } from "preact";
 import { MutableRef, useRef } from "preact/hooks";
 import { Camera, Color, DirectionalLight, Intersection, Material, Mesh, MeshStandardMaterial, MeshToonMaterial, Object3D, PerspectiveCamera, Scene } from "three";
@@ -149,7 +148,7 @@ function spawnCharacters (occupants: DbCharacter[], scene: Scene) {
     let isLocal = false;
     if (occupant.id === db.selectedCharacterId) isLocal = true;
 
-    console.log(minuteDiff);
+    // console.log(minuteDiff);
 
     //ignore 30 minute old data
     //TODO - handle updated character spawning
@@ -173,6 +172,7 @@ function spawnCharacters (occupants: DbCharacter[], scene: Scene) {
   }
 }
 
+/**Update character.room, under the hood relies on pb_hooks/yarr.pb.js to update room.occupants*/
 export async function characterJoinRoom (toId: string, charId: string) {
   return db.ctx.collection("characters").update<DbCharacter>(charId, {
     room: toId
@@ -192,6 +192,16 @@ export async function tryNavRoom(name: string) {
   // setTimeout(()=>{
     window.location.href = `/play/${room.id}`;
   // }, 10);
+}
+
+function arrayDiff<T>(prev: T[], next: T[]) {
+  const removed = prev.filter(item => !next.includes(item));
+  const added = next.filter(item => !prev.includes(item));
+
+  return {
+    removed,
+    added
+  };
 }
 
 export default class Room extends Component<Props,State> {
@@ -229,6 +239,38 @@ export default class Room extends Component<Props,State> {
 
   setupRoom () {
     loadRoom(this.props.roomId, this.scene).then((room)=>{
+
+      //listen to room updates
+      db.ctx.collection("rooms")
+      .subscribe<DbRoom>(room.id, async (data)=>{
+        if (data.action !== "update") return;
+        const update = data.record;
+        
+        // console.log("Updated room", room.id, room.occupants, update.occupants);
+
+        const {removed, added } = arrayDiff(room.occupants, update.occupants);
+        if (removed.length > 0) {
+          for (const who of removed) {
+            if (Character.remove(who)) {
+              console.log("Player", who, "removed from room");
+            } else {
+              console.warn("Failed to remove player who left the room", who);
+            }
+          }
+        }
+        if (added.length > 0) {
+          const promises = new Array<Promise<DbCharacter>>();
+          for (const who of added) {
+            console.log("Player", who, "added to room");
+
+            promises.push(db.ctx.collection("characters").getOne(who));
+          }
+          spawnCharacters(await Promise.all(promises), this.scene);
+        }
+
+        room.occupants = update.occupants;
+      });
+
       const cfg = {
         materialNames: new Map<string, Material>(),
         white: new Color("white"),
