@@ -187,11 +187,11 @@ export async function tryNavRoom(name: string) {
     console.warn("Couldn't nav to room", name, "couldn't find valid db entry");
     return;
   }
-  await characterJoinRoom(room.id, db.selectedCharacterId);
+  // await characterJoinRoom(room.id, db.selectedCharacterId);
   
-  setTimeout(()=>{
+  // setTimeout(()=>{
     window.location.href = `/play/${room.id}`;
-  }, 10);
+  // }, 10);
 }
 
 export default class Room extends Component<Props,State> {
@@ -209,10 +209,13 @@ export default class Room extends Component<Props,State> {
       const camera = this.camera = new PerspectiveCamera();
 
       let roomIdResolve = !this.props.roomId ? getRandomRoomId() : Promise.resolve(this.props.roomId);
-      roomIdResolve.then((roomId)=>{
+      roomIdResolve.then(async (roomId)=>{
         // console.log(roomId);
         db.selectedRoomId = roomId;
         this.props.roomId = roomId;
+        
+        await characterJoinRoom(roomId, db.selectedCharacterId);
+
         this.setupRoom();
       });
 
