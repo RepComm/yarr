@@ -2,25 +2,35 @@
 
 ![img](./example.png)
 ![img](./example1.png)
+![img](./example2.png)
+![img](./example3.png)
 
 ## Implemented
 - `/` - home, character selector
-- `/play` - renders a room and its occupants
+- `/play` - main gameplay here
 - Characters w/ equipped items and floating name
 - Profile cards
+  - basic render of player w/ items attached
 - Clickable callbacks (raycasting)
-- Room navigation
+- Room nav
+  - click-to-walk
+  - leave/join updates for all players
 
 ### Rooms
 - Coffee Shop
 - Town model (imcomplete)
 
 ### GLTF userData (blender custom props):
-  - `mesh.userData["goto-room"]` - DbRoom.label navigation
-  - `material.userData.emission` - float that maps to emissiveIntensity of material, when included, emission property of material defaults to white instead of black
-  - `mesh.userData.invis` - "true" or "false" strings, when true sets mesh.visible = false
-  - `material.userData.toon` - when set to "false" skips toon material conversion
-- `room.model_placements` handles multiple placements of the asset model used without duping geometry data
+ - `obj.userData["spawn-from"]` - DbRoom.label
+    - obj is spawn position if previous room.label is this value
+ - `mesh.userData["goto-room"]` - DbRoom.label
+    - mesh is clickable, joins room with this value
+ - `material.userData.emission` - float
+    - emissiveIntensity of material, when included, emission property of material defaults to white instead of black
+ - `mesh.userData.invis` - "true"|"false"
+    - when true sets mesh.visible = false
+ - `material.userData.toon` - "true"|"false"
+    - when set to "false" skips toon material conversion
 
 - Rooms, Items, Assets fully from database uploads, no code required to create new ones
 
@@ -47,23 +57,26 @@ The schema can be loaded from pb_schema.json
   - characters - multiple characters per player
     - inventory - items the player owns
     - equipped - items the player has equipped (subset of inventory)
-    - x,y,z position
+    - x,y,z - position
+    - rx,ry,rz - euler rotation
     - name - name of the character
+    - room - set this to handle all room updates
 - items
   - definition - item_defs entry
   - owner - who owns this item
   - count
 - item_defs
-  - wearable - item can be worn
-  - wearable_bone_name - what to attach to
-  - asset - asset entry
-  - label
-  - description
+  - wearable - boolean
+  - wearable_bone_name - string
+    - obj.name attach point
+  - asset - DbAsset
+  - label - string
+  - description - string
 - rooms
-  - model_placements
-  - occupants - list of characters
-  - label
-  - description
+  - model_placements - DbModelPlacements
+  - occupants - DbCharacters[]
+  - label - string
+  - description - string
 - model_placements
   - asset - what model to show
   - placements - JSON array of {x,y,z}

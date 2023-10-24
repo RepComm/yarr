@@ -30,13 +30,13 @@ async function loadRoom(roomId: string, scene: Scene) {
       const url = db.ctx.files.getUrl(
         instm.expand.asset as any,
         instm.expand.asset.file)
-  
+
       const gltf = await loader.loadAsync(url);
-  
-  
+
+
       if (instm.placements.length === 1) {
         const placement = instm.placements[0];
-  
+
         scene.add(gltf.scene);
         gltf.scene.position.set(
           placement.x,
@@ -46,7 +46,7 @@ async function loadRoom(roomId: string, scene: Scene) {
       } else {
         for (let i = 0; i < instm.placements.length; i++) {
           const placement = instm.placements[i];
-    
+
           const cloned = gltf.scene.clone(true);
           cloned.position.set(
             placement.x,
@@ -68,7 +68,7 @@ interface ChildFixConfig {
   black: Color;
 }
 
-function fixChild ( child: Object3D, cfg: ChildFixConfig) {
+function fixChild(child: Object3D, cfg: ChildFixConfig) {
   const {
     camera, materialNames, white, black
   } = cfg;
@@ -95,7 +95,7 @@ function fixChild ( child: Object3D, cfg: ChildFixConfig) {
               name: mat.name,
               visible: mat.visible,
               map: mat.map,
-              transparent: mat.userData.transparent==="true" ? true : false,
+              transparent: mat.userData.transparent === "true" ? true : false,
               emissive: mat.userData.emissive ? white : black,
               emissiveIntensity: mat.userData.emissive || 1
             });
@@ -107,26 +107,26 @@ function fixChild ( child: Object3D, cfg: ChildFixConfig) {
     }
 
     let lgt: DirectionalLight = child as any;
-    
+
     if (lgt.isLight) {
       // if (lgt.isDirectionalLight) {
-        lgt.intensity /= 2000;
+      lgt.intensity /= 2000;
       // }
     }
   }
 }
 
-async function getRandomRoomId () {
+async function getRandomRoomId() {
   let rooms = await db.listRooms();
-  const index = Math.floor( Math.random() * rooms.length );
+  const index = Math.floor(Math.random() * rooms.length);
   console.log(index, rooms.length);
   return rooms[index].id;
 }
 
 let LocalCharacterResolved = false;
-let TryResolveLocalCharacter: (c: Character)=>void;
-export const LocalCharacter = new Promise((resolve,reject)=>{
-  TryResolveLocalCharacter = (v)=>{
+let TryResolveLocalCharacter: (c: Character) => void;
+export const LocalCharacter = new Promise((resolve, reject) => {
+  TryResolveLocalCharacter = (v) => {
     if (!LocalCharacterResolved) {
       LocalCharacterResolved = true;
       resolve(v);
@@ -134,7 +134,7 @@ export const LocalCharacter = new Promise((resolve,reject)=>{
   }
 });
 
-function spawnCharacters (occupants: DbCharacter[], scene: Scene) {
+function spawnCharacters(occupants: DbCharacter[], scene: Scene) {
   if (!occupants || occupants.length < 1) return;
 
   for (const occupant of occupants) {
@@ -144,7 +144,7 @@ function spawnCharacters (occupants: DbCharacter[], scene: Scene) {
     const secondDiff = diff / 1000;
 
     const minuteDiff = secondDiff / 60;
-    
+
     let isLocal = false;
     if (occupant.id === db.selectedCharacterId) isLocal = true;
 
@@ -155,9 +155,9 @@ function spawnCharacters (occupants: DbCharacter[], scene: Scene) {
     if (minuteDiff > 30 && !isLocal) continue;
 
     console.log("Spawning", occupant.name);
-    
+
     // if (occupant.updated)
-    Character.spawn(occupant, scene).then((ch)=>{
+    Character.spawn(occupant, scene).then((ch) => {
       ch.scene.position.set(
         occupant.x, occupant.y, occupant.z
       );
@@ -173,7 +173,7 @@ function spawnCharacters (occupants: DbCharacter[], scene: Scene) {
 }
 
 /**Update character.room, under the hood relies on pb_hooks/yarr.pb.js to update room.occupants*/
-export async function characterJoinRoom (toId: string, charId: string) {
+export async function characterJoinRoom(toId: string, charId: string) {
   return db.ctx.collection("characters").update<DbCharacter>(charId, {
     room: toId
   } as Partial<DbCharacter>)
@@ -188,9 +188,9 @@ export async function tryNavRoom(name: string) {
     return;
   }
   // await characterJoinRoom(room.id, db.selectedCharacterId);
-  
+
   // setTimeout(()=>{
-    window.location.href = `/play/${room.id}`;
+  window.location.href = `/play/${room.id}`;
   // }, 10);
 }
 
@@ -204,26 +204,26 @@ function arrayDiff<T>(prev: T[], next: T[]) {
   };
 }
 
-export default class Room extends Component<Props,State> {
+export default class Room extends Component<Props, State> {
   onInitScene: InitSceneCb;
-  
+
   scene: Scene;
   camera: Camera;
   r: MutableRef<Three>;
 
-  constructor () {
+  constructor() {
     super();
 
-    this.onInitScene = ()=>{
+    this.onInitScene = () => {
       const scene = this.scene = new Scene();
       const camera = this.camera = new PerspectiveCamera();
 
       let roomIdResolve = !this.props.roomId ? getRandomRoomId() : Promise.resolve(this.props.roomId);
-      roomIdResolve.then(async (roomId)=>{
+      roomIdResolve.then(async (roomId) => {
         // console.log(roomId);
         db.selectedRoomId = roomId;
         this.props.roomId = roomId;
-        
+
         await characterJoinRoom(roomId, db.selectedCharacterId);
 
         this.setupRoom();
@@ -237,39 +237,39 @@ export default class Room extends Component<Props,State> {
 
   }
 
-  setupRoom () {
-    loadRoom(this.props.roomId, this.scene).then((room)=>{
+  setupRoom() {
+    loadRoom(this.props.roomId, this.scene).then((room) => {
 
       //listen to room updates
       db.ctx.collection("rooms")
-      .subscribe<DbRoom>(room.id, async (data)=>{
-        if (data.action !== "update") return;
-        const update = data.record;
-        
-        // console.log("Updated room", room.id, room.occupants, update.occupants);
+        .subscribe<DbRoom>(room.id, async (data) => {
+          if (data.action !== "update") return;
+          const update = data.record;
 
-        const {removed, added } = arrayDiff(room.occupants, update.occupants);
-        if (removed.length > 0) {
-          for (const who of removed) {
-            if (Character.remove(who)) {
-              console.log("Player", who, "removed from room");
-            } else {
-              console.warn("Failed to remove player who left the room", who);
+          // console.log("Updated room", room.id, room.occupants, update.occupants);
+
+          const { removed, added } = arrayDiff(room.occupants, update.occupants);
+          if (removed.length > 0) {
+            for (const who of removed) {
+              if (Character.remove(who)) {
+                console.log("Player", who, "removed from room");
+              } else {
+                console.warn("Failed to remove player who left the room", who);
+              }
             }
           }
-        }
-        if (added.length > 0) {
-          const promises = new Array<Promise<DbCharacter>>();
-          for (const who of added) {
-            console.log("Player", who, "added to room");
+          if (added.length > 0) {
+            const promises = new Array<Promise<DbCharacter>>();
+            for (const who of added) {
+              console.log("Player", who, "added to room");
 
-            promises.push(db.ctx.collection("characters").getOne(who));
+              promises.push(db.ctx.collection("characters").getOne(who));
+            }
+            spawnCharacters(await Promise.all(promises), this.scene);
           }
-          spawnCharacters(await Promise.all(promises), this.scene);
-        }
 
-        room.occupants = update.occupants;
-      });
+          room.occupants = update.occupants;
+        });
 
       const cfg = {
         materialNames: new Map<string, Material>(),
@@ -277,7 +277,7 @@ export default class Room extends Component<Props,State> {
         black: new Color("black"),
         camera: this.camera
       };
-      
+
       const gotoRoom = new Array<Mesh>();
 
       const groundClickable = new Array<Mesh>();
@@ -307,7 +307,7 @@ export default class Room extends Component<Props,State> {
       });
 
       this.r.current.listenToClick({
-        cb: (inters)=>{
+        cb: (inters) => {
           const first = inters[0].object;
           const roomName = first.userData["goto-room"];
 
@@ -320,10 +320,10 @@ export default class Room extends Component<Props,State> {
       });
 
       this.r.current.listenToClick({
-        cb: (inters)=>{
+        cb: (inters) => {
           const first = inters[0].object;
           const inter = inters[0];
-          
+
           // console.log("Ground clicked", inter.point);
           // Character.all.get(db.selectedCharacterId).
           db.ctx.collection("characters").update(db.selectedCharacterId, {
@@ -337,7 +337,7 @@ export default class Room extends Component<Props,State> {
       });
 
       this.r.current.listenToClick({
-        cb: (inters)=>{
+        cb: (inters) => {
           const first = inters[0].object;
           console.log("Hover anim", first.userData["hover-anim"]);
         },
@@ -346,7 +346,7 @@ export default class Room extends Component<Props,State> {
       });
 
       this.r.current.listenToClick({
-        cb: (inters)=>{
+        cb: (inters) => {
           const first = inters[0].object;
           console.log("Open minigame", first.userData["minigame"]);
         },
@@ -358,7 +358,7 @@ export default class Room extends Component<Props,State> {
     });
   }
 
-  render () {
+  render() {
     this.r = useRef<Three>();
 
     const result = <Three
