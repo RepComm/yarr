@@ -8,6 +8,8 @@ import Three, { InitSceneCb } from "../../components/three";
 import { DbCharacter, DbRoom, db } from "../../db";
 import { findObjectByName } from "../../utils";
 
+import style from "./style.css";
+
 interface Props {
   roomId: string;
 }
@@ -363,10 +365,33 @@ export default class Room extends Component<Props, State> {
 
     const result = <Three
       ref={this.r}
-      containerClassName=""
+      style={{
+        minWidth: "100%",
+        minHeight: "100%"
+      }}
       onInitScene={this.onInitScene}
     />
 
-    return result;
+    return <div className={style.container}>
+      {result}
+      <div className={style.chatbar}>
+        <div className={style.chaticon} />
+        <div className={style.chaticon} />
+        <div className={style.chaticon} />
+        <div className={style.chaticon} />
+
+        <input className={style.chatbox}
+          onChange={(evt)=>{
+            const s = evt.target as HTMLInputElement;
+            s.value = "";
+          }}
+        />
+
+        <div className={style.chaticon} />
+        <div className={style.chaticon} />
+        <div className={style.chaticon} />
+        <div className={style.chaticon} />
+      </div>
+    </div>
   }
 }

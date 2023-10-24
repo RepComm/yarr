@@ -20,7 +20,7 @@ export interface ThreeProps {
   onInitScene: InitSceneCb;
   webglParams?: WebGLRendererParameters;
   clearColor?: string;
-  containerClassName: string;
+  style?: any;
 }
 export interface ThreeState {
   
@@ -149,7 +149,7 @@ export default class Three extends Component<ThreeProps, ThreeState> {
 
   render() {
     return <div
-      className={this.props.containerClassName}
+      style={this.props.style}
       ref={(_ref) => {
         this._ref = _ref;
       }

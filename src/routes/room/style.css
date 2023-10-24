@@ -1,4 +1,52 @@
 
+.container {
+
+}
+
 .room {
   
+}
+
+.chatbar {
+  position: absolute;
+  bottom: 0;
+  height: 2em;
+  padding: 0.5em;
+  
+  width: 60%;
+  left: 20%;
+  background-color: #498fc9;
+  border-top-left-radius: 0.5em;
+  border-top-right-radius: 0.5em;
+
+  border-color: #1d3950;
+  border-left-width: 2px;
+  border-right-width: 2px;
+  border-top-width: 2px;
+  border-style: solid;
+  border-bottom-width: 0px;
+
+  display: flex;
+  justify-content: space-between;
+}
+
+.chatbox {
+  background-color: #112e49;
+  border-color: #265683;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 1em;
+  flex: 1;
+  max-width: 50%;
+  text-indent: 1em;
+}
+
+.chaticon {
+  background-color: #143452;
+  border-color: #265683;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 1em;
+  max-width: 2em;
+  flex: 1;
 }
