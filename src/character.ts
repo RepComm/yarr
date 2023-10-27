@@ -204,8 +204,8 @@ export class Character {
             false
           );
 
-          const t = new Vector3(update.x, update.y, update.z);
-          this.scene.lookAt(t);
+          //now calculated by the client and sent to db
+          // this.scene.lookAt(pos);
 
         });
 

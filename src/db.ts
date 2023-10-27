@@ -60,6 +60,10 @@ export interface DbCharacter extends DbRow {
   equipped: DbRowId[];
   color: string;
   room: DbRowId;
+
+  chat: string;
+  chat_sent_time: string;
+
   expand: CharacterExpand;
 }
 

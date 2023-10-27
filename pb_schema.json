@@ -357,6 +357,45 @@
         "options": {}
     },
     {
+        "id": "cxxenim5mest0e2",
+        "name": "roles",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "id": "qsiyb4wg",
+                "name": "name",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "id": "wh5mils1",
+                "name": "description",
+                "type": "text",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            }
+        ],
+        "indexes": [],
+        "listRule": null,
+        "viewRule": "@collection.characters.owner.id = @request.auth.id && @collection.characters.roles.id ?= id",
+        "createRule": null,
+        "updateRule": null,
+        "deleteRule": null,
+        "options": {}
+    },
+    {
         "id": "g32k3w7qy4wbben",
         "name": "characters",
         "type": "base",
@@ -496,25 +535,43 @@
                         "name"
                     ]
                 }
-            }
-        ],
-        "indexes": [],
-        "listRule": "@request.auth.id != \"\"",
-        "viewRule": "@request.auth.id != \"\"",
-        "createRule": "@request.auth.id != \"\" && @request.auth.id = owner.id",
-        "updateRule": "@request.auth.id != \"\" && @request.auth.id = owner.id",
-        "deleteRule": "@request.auth.id != \"\" && @request.auth.id = owner.id",
-        "options": {}
-    },
-    {
-        "id": "cxxenim5mest0e2",
-        "name": "roles",
-        "type": "base",
-        "system": false,
-        "schema": [
+            },
             {
-                "id": "qsiyb4wg",
-                "name": "name",
+                "id": "n55frbej",
+                "name": "rx",
+                "type": "number",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null
+                }
+            },
+            {
+                "id": "7h8wezrc",
+                "name": "ry",
+                "type": "number",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null
+                }
+            },
+            {
+                "id": "kggmwfj5",
+                "name": "rz",
+                "type": "number",
+                "system": false,
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null
+                }
+            },
+            {
+                "id": "zfizds74",
+                "name": "chat",
                 "type": "text",
                 "system": false,
                 "required": false,
@@ -525,24 +582,23 @@
                 }
             },
             {
-                "id": "wh5mils1",
-                "name": "description",
-                "type": "text",
+                "id": "zbuspxzx",
+                "name": "chat_sent_time",
+                "type": "date",
                 "system": false,
                 "required": false,
                 "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
+                    "min": "",
+                    "max": ""
                 }
             }
         ],
         "indexes": [],
-        "listRule": null,
-        "viewRule": "@collection.characters.owner.id = @request.auth.id && @collection.characters.roles.id ?= id",
-        "createRule": null,
-        "updateRule": null,
-        "deleteRule": null,
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": "@request.auth.id != \"\" && @request.auth.id = owner.id",
+        "updateRule": "@request.auth.id != \"\" && @request.auth.id = owner.id",
+        "deleteRule": "@request.auth.id != \"\" && @request.auth.id = owner.id",
         "options": {}
     }
 ]

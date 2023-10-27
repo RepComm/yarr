@@ -325,13 +325,30 @@ export default class Room extends Component<Props, State> {
         cb: (inters) => {
           const first = inters[0].object;
           const inter = inters[0];
+          const point = inter.point;
+          const { x, y, z, } = point;
 
-          // console.log("Ground clicked", inter.point);
-          // Character.all.get(db.selectedCharacterId).
-          db.ctx.collection("characters").update(db.selectedCharacterId, {
-            x: inter.point.x,
-            y: inter.point.y,
-            z: inter.point.z
+          const id = db.selectedCharacterId;
+
+          const ch = Character.all.get(id);
+          let rx = 0;
+          let ry = 0;
+          let rz = 0;
+
+          if (ch) {
+            ch.scene.lookAt(point);
+            
+            rx = ch.scene.rotation.x;
+            ry = ch.scene.rotation.y;
+            rz = ch.scene.rotation.z;
+          }
+          db.ctx.collection("characters").update(id, {
+            x,
+            y,
+            z,
+            rx,
+            ry,
+            rz
           } as Partial<DbCharacter>);
         },
         objects: groundClickable,
@@ -383,7 +400,22 @@ export default class Room extends Component<Props, State> {
         <input className={style.chatbox}
           onChange={(evt)=>{
             const s = evt.target as HTMLInputElement;
+            const chat = s.value.trim();
+            // console.log(chat);
+            if (chat === "") {
+              console.log("Empty chat messages do not transmit");
+              return;
+            }
+            const chat_sent_time = new Date().toISOString();
+            
             s.value = "";
+            
+            db.ctx.collection("characters").update<DbCharacter>(
+              db.selectedCharacterId, {
+                chat,
+                chat_sent_time
+              }
+            );
           }}
         />
 
