@@ -1,5 +1,5 @@
 
-import { Color, Euler, Group, Mesh, MeshStandardMaterial, Object3D, Scene, Vector3 } from "three";
+import { AnimationAction, AnimationClip, AnimationMixer, Color, Euler, Group, LoopOnce, LoopRepeat, Mesh, MeshStandardMaterial, Object3D, Scene, Vector3 } from "three";
 import { DbCharacter, db } from "./db";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
@@ -122,6 +122,9 @@ export class Character {
     }
   }
 
+  mixer: AnimationMixer;
+  clips: Map<string, AnimationClip>;
+
   private constructor(definition: DbCharacter) {
     this.definition = definition;
     this.equipped = new Map();
@@ -137,11 +140,39 @@ export class Character {
     if (!this.scene) {
       CharModelProvider.then((gltf) => {
         this.scene = gltf.scene.clone(true);
+        this.mixer = new AnimationMixer(this.scene);
+        this.clips = new Map();
+
+        for (const a of gltf.animations) {
+          this.clips.set(a.name, a);
+        }
         this.renderEquipped();
       });
     } else {
       this.renderEquipped();
     }
+  }
+
+  waddleStopTimeout: any;
+
+  playAnim (name: string, duration: number) {
+    if (this.waddleStopTimeout !== undefined) {
+      clearTimeout(this.waddleStopTimeout);
+    }
+    const clip = this.clips.get(name);
+    
+    // console.log(clip, duration);
+
+    if (!clip) return false;
+    const ca = this.mixer.clipAction(clip, this.scene);
+
+    ca.play();
+
+    this.waddleStopTimeout = setTimeout(()=>{
+      ca.stop();
+    }, duration);
+
+    return true;
   }
 
   target: Vector3;
@@ -168,18 +199,10 @@ export class Character {
       return;
     }
 
-    // this.anim.play("waddle");
-
     this.dist = this.target.distanceTo(this.actual);
-
-    // if (this.stopWaddleAnimTimeout) {
-    //   clearTimeout(this.stopWaddleAnimTimeout);
-    //   this.stopWaddleAnimTimeout = null;
-    // }
-
-    // this.stopWaddleAnimTimeout = setTimeout(()=>{
-    //   this.anim.stop("waddle");
-    // }, 1000 * this.dist/this.walkSpeed);
+    const duration = (this.dist / this.walkSpeed) * 1000;
+    
+    this.playAnim("waddle", duration);
   }
 
   updateInterval: any;
@@ -203,10 +226,6 @@ export class Character {
             update.rz,
             false
           );
-
-          //now calculated by the client and sent to db
-          // this.scene.lookAt(pos);
-
         });
 
     const fps = 30;
@@ -236,7 +255,7 @@ export class Character {
       this.actual.lerp(this.target, (delta * 1 / this.dist) * this.walkSpeed);
     }
 
-    // this.anim.mixer.setTime(absTime/1000);
+    this.mixer.setTime(Date.now()/1000);
   }
 
   static remove (id: string): boolean {
