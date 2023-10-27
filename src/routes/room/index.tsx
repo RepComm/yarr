@@ -1,10 +1,10 @@
 
 import { Component, h } from "preact";
 import { MutableRef, useRef } from "preact/hooks";
-import { Camera, Color, DirectionalLight, Intersection, Material, Mesh, MeshStandardMaterial, MeshToonMaterial, Object3D, PerspectiveCamera, Scene } from "three";
+import { AnimationMixer, Camera, Color, DirectionalLight, Intersection, Material, Mesh, MeshStandardMaterial, MeshToonMaterial, Object3D, PerspectiveCamera, Scene } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Character } from "../../character";
-import Three, { InitSceneCb } from "../../components/three";
+import Three, { InitSceneCb, RenderSceneCb } from "../../components/three";
 import { DbCharacter, DbRoom, db } from "../../db";
 import { findObjectByName } from "../../utils";
 
@@ -23,6 +23,8 @@ async function loadRoom(roomId: string, scene: Scene) {
     expand: "model_placements,model_placements.asset,occupants"
   });
 
+  const mixers = new Array<AnimationMixer>();
+
   if (room && room.expand && room.expand.model_placements) {
     for (let instm of room.expand.model_placements) {
       if (!instm.placements || !Array.isArray(instm.placements) || instm.placements.length < 1) {
@@ -35,7 +37,6 @@ async function loadRoom(roomId: string, scene: Scene) {
 
       const gltf = await loader.loadAsync(url);
 
-
       if (instm.placements.length === 1) {
         const placement = instm.placements[0];
 
@@ -45,6 +46,12 @@ async function loadRoom(roomId: string, scene: Scene) {
           placement.y,
           placement.z
         );
+
+        const mixer = new AnimationMixer(gltf.scene);
+        mixers.push(mixer);
+        for (const clip of gltf.animations) {
+          mixer.clipAction(clip).play();
+        }
       } else {
         for (let i = 0; i < instm.placements.length; i++) {
           const placement = instm.placements[i];
@@ -56,11 +63,18 @@ async function loadRoom(roomId: string, scene: Scene) {
             placement.z
           );
           scene.add(cloned);
+
+          const mixer = new AnimationMixer(cloned);
+          for (const clip of gltf.animations) {
+            mixer.clipAction(clip, cloned).play();
+          }
+          mixers.push(mixer);
         }
       }
     }
   }
-  return room;
+
+  return [room, mixers];
 }
 
 interface ChildFixConfig {
@@ -208,13 +222,17 @@ function arrayDiff<T>(prev: T[], next: T[]) {
 
 export default class Room extends Component<Props, State> {
   onInitScene: InitSceneCb;
+  onRenderScene: RenderSceneCb;
 
   scene: Scene;
   camera: Camera;
   r: MutableRef<Three>;
+  mixers: Array<AnimationMixer>;
 
   constructor() {
     super();
+
+    this.mixers = [];
 
     this.onInitScene = () => {
       const scene = this.scene = new Scene();
@@ -240,7 +258,9 @@ export default class Room extends Component<Props, State> {
   }
 
   setupRoom() {
-    loadRoom(this.props.roomId, this.scene).then((room) => {
+    loadRoom(this.props.roomId, this.scene).then((res) => {
+      const room = res[0] as DbRoom;
+      this.mixers = res[1] as Array<AnimationMixer>;
 
       //listen to room updates
       db.ctx.collection("rooms")
@@ -387,6 +407,11 @@ export default class Room extends Component<Props, State> {
         minHeight: "100%"
       }}
       onInitScene={this.onInitScene}
+      onRenderScene={(delta)=>{
+        for (const mixer of this.mixers) {
+          mixer.update(delta);
+        }
+      }}
     />
 
     return <div className={style.container}>

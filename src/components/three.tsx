@@ -16,8 +16,13 @@ export interface Clickables {
   recursive?: boolean;
 }
 
+export interface RenderSceneCb {
+  (delta: number): void;
+}
+
 export interface ThreeProps {
   onInitScene: InitSceneCb;
+  onRenderScene?: RenderSceneCb;
   webglParams?: WebGLRendererParameters;
   clearColor?: string;
   style?: any;
@@ -133,10 +138,18 @@ export default class Three extends Component<ThreeProps, ThreeState> {
       // cube.position.y = 1;
       // this.scene.add(cube);
 
-      const render = () => {
+      let timeLast = 0;
+      let timeDelta = 0;
+
+
+      const render = (timeNow: number) => {
+        timeDelta = (timeNow - timeLast) / 1000;
+        timeLast = timeNow;
         requestAnimationFrame(render);
 
-        // cube.rotateY(0.1);
+        if (this.props.onRenderScene) {
+          this.props.onRenderScene(timeDelta);
+        }
 
         this.renderer.render(this.scene, this.camera);
       };

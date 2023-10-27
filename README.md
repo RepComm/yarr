@@ -8,17 +8,19 @@
 ## Implemented
 - `/` - home, character selector
 - `/play` - main gameplay here
-- Characters w/ equipped items and floating name
-- Profile cards
-  - basic render of player w/ items attached
+- characters
+ - profile cards
+   - player w/ items attached
+ - equipped items
+ - floating name
+ - click-to-walk
+ - waddle anim
+ - room join/leave by updating character.room in db
 - Clickable callbacks (raycasting)
-- Room nav
-  - click-to-walk
-  - leave/join updates for all players
 
 ### Rooms
 - Coffee Shop
-- Town model (imcomplete)
+- Town model (incomplete)
 
 ### GLTF userData (blender custom props):
  - `obj.userData["spawn-from"]` - DbRoom.label
